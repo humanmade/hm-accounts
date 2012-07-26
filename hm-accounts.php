@@ -1,5 +1,13 @@
 <?php
 
+/*
+Plugin Name: HM Accounts
+Description: Functionality for user logins / registrations / profiles etc.
+Author: Human Made Limited
+Version: 0.2
+Author URI: http://humanmade.co.uk/
+*/
+
 include_once( 'hm-accounts.classes.php' );
 include_once( 'hm-accounts.functions.php' );
 include_once( 'hm-accounts.template-tags.php' );
