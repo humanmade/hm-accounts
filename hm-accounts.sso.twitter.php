@@ -425,7 +425,6 @@ class HMA_Twitter_Avatar_Option extends HMA_SSO_Avatar_Option {
 	function get_avatar( $size = null ) {
 		
 		$this->avatar_path = null;
-
 		
 		if ( ( $avatar = get_user_meta( $this->user->ID, '_twitter_avatar', true ) ) && file_exists( $avatar ) ) {
 		    $this->avatar_path = $avatar;
@@ -436,8 +435,8 @@ class HMA_Twitter_Avatar_Option extends HMA_SSO_Avatar_Option {
 			if ( empty( $user_info['screen_name'] ) )
 				return null;
 				
-			$image_url = "http://img.tweetimag.es/i/{$user_info['screen_name']}_o";
-			
+			$image_url = "http://api.twitter.com/1/users/profile_image?screen_name={$user_info['screen_name']}&size=original";
+
 			$this->avatar_path = $this->save_avatar_locally( $image_url, 'png' ) ;
 			
 			// saving teh image failed
@@ -446,8 +445,10 @@ class HMA_Twitter_Avatar_Option extends HMA_SSO_Avatar_Option {
 			
 			update_user_meta( $this->user->ID, '_twitter_avatar', $this->avatar_path );
 		}
+		
+		$img =  wpthumb( $this->avatar_path, $size );
 
-		return wpthumb( $this->avatar_path, $size . '&cache=0' );
+		return $img;
 	}
 	
 	function remove_local_avatar() {

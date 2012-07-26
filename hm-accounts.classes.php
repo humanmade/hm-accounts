@@ -307,7 +307,8 @@ add_action( 'init', function() {
 
 			$hm_accounts = HM_Accounts::get_instance( $type );
 
-			if ( $_POST['user_pass'] ) {
+			// normal login form authentication
+			if ( isset( $_POST['user_pass'] ) ) {
 
 				$details = array( 
 					'password' => $_POST['user_pass'], 
@@ -324,7 +325,14 @@ add_action( 'init', function() {
 			$status = $hm_accounts->login( $details );
 
 			if ( is_wp_error( $status ) )
-				hm_error_message( $status->get_error_message() ? $status->get_error_message() : 'Something went wrong, error code: ' . $status->get_error_code(), 'login' );
+				hm_error_message( 
+					apply_filters( 
+						'hma_login_error_message', 
+						$status->get_error_message() ? $status->get_error_message() : 'Something went wrong, error code: ' . $status->get_error_code(), 
+						$status
+					), 
+					'login' 
+				);
 
 
 			hma_do_login_redirect( $status, true );
