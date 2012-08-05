@@ -338,15 +338,19 @@ function hma_get_avatar_upload( $user, $width, $height, $crop ) {
 }
 
 function hma_get_avatar_upload_path( $user ) {
-	
+
 	if ( empty( $user->user_avatar_path ) )
 		return '';
+
+	$path = $user->user_avatar_path;
+
+	// backwards compatibility
+	if ( strpos( $path, ABSPATH ) === 0 )
+		return $path;
 	
-	//windows hackery
-	if ( strpos( $user->user_avatar_path, untrailingslashit( ABSPATH ) ) === 0 )
-		return $user->user_avatar_path;
-	
-	return ABSPATH . $user->user_avatar_path;
+	$upload_dir = wp_upload_dir();
+
+	return $upload_dir['basedir'] . $path;
 }
 
 /**

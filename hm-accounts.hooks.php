@@ -256,7 +256,10 @@ function hma_admin_add_avatar_save( $user_id ) {
 		if ( ! isset( $file['file'] ) )
 			return;
 
-		update_user_meta( $user_id, 'user_avatar_path', str_replace( array( ABSPATH, '\\' ), array( ABSPATH, '/' ), $file['file'] ) );
+		$upload_dir = wp_upload_dir();
+
+		$path = str_replace( $upload_dir['basedir'] , '', $file['file'] );
+		update_user_meta( $user_id, 'user_avatar_path', $path );
 		update_user_meta( $user_id, 'user_avatar_option', 'uploaded' );
 
 	}
