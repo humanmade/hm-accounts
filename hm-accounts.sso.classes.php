@@ -61,7 +61,7 @@ class HMA_SSO_Avatar_Option {
 
 		do_action( 'add_event', $image_path );
 		
-		file_put_contents( $image_path, file_get_contents( $url ) );
+		file_put_contents( $image_path, @file_get_contents( $url ) );
 		
 		//check that the image saved ok, if not then remove it and return null
 		if ( ! getimagesize( $image_path ) ) {

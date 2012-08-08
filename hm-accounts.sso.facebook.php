@@ -552,7 +552,8 @@ class HMA_Facebook_Avatar_Option extends HMA_SSO_Avatar_Option {
 		if ( !is_user_logged_in() || empty( $this->avatar_path ) )
 			return null;
 		
-		unlink( $this->avatar_path );
+		if ( file_exists( $this->avatar_path ) )
+			unlink( $this->avatar_path );
 		
 		delete_user_meta( get_current_user_id(), '_facebook_avatar' );
 	}

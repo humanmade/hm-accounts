@@ -143,9 +143,9 @@ class HMA_SSO_Twitter extends HMA_SSO_Provider {
 		
 		$user = get_userdata( $user_id );
 		$token = $this->access_token;
-	 	$this->set_user( $user );
-	 	$this->access_token = $token;
-	 	
+		$this->set_user( $user );
+		$this->access_token = $token;
+		
 		$this->update_user_twitter_information();
 		
 		wp_set_auth_cookie( $user_id, $details['remember'] );
@@ -196,16 +196,16 @@ class HMA_SSO_Twitter extends HMA_SSO_Provider {
 
 		$this->set_registration_data( array_merge( $this->registration_data, $userdata ) );
 
-	 	$result = parent::register();
-	 	
-	 	// Set_user() will wide access token
-	 	$token = $this->access_token;
-	 	$user = get_userdata( $result );
-	 	$this->set_user( $user );
-	 	$this->access_token = $token;
-	 	
-	 	$this->update_user_twitter_information();
- 		
+		$result = parent::register();
+		
+		// Set_user() will wide access token
+		$token = $this->access_token;
+		$user = get_userdata( $result );
+		$this->set_user( $user );
+		$this->access_token = $token;
+		
+		$this->update_user_twitter_information();
+		
 		//set the avatar to their twitter avatar if registration completed
 		if ( !is_wp_error( $result ) && is_numeric( $result ) ) {
 			$this->avatar_option = new HMA_Twitter_Avatar_Option( $this );
@@ -426,24 +426,34 @@ class HMA_Twitter_Avatar_Option extends HMA_SSO_Avatar_Option {
 		
 		$this->avatar_path = null;
 		
+		$upload_dir = wp_upload_dir();
+		$upload_dir_base = $upload_dir['basedir'];
+		
 		if ( ( $avatar = get_user_meta( $this->user->ID, '_twitter_avatar', true ) ) && file_exists( $avatar ) ) {
-		    $this->avatar_path = $avatar;
-		    
+			$this->avatar_path = $avatar;
+			
+		} if ( ( $avatar = get_user_meta( $this->user->ID, '_twitter_avatar', true ) ) && file_exists( $upload_dir_base . $avatar ) ) {
+			$this->avatar_path = $upload_dir_base . $avatar;
+			
 		} elseif ( $this->sso_provider->is_authenticated() ) {
 			$user_info = $this->sso_provider->user_info();
 
 			if ( empty( $user_info['screen_name'] ) )
 				return null;
 				
-			$image_url = "http://api.twitter.com/1/users/profile_image?screen_name={$user_info['screen_name']}&size=original";
-
+			$image_url = "http://api.twitter.com/1/users/profile_image/{$user_info['screen_name']}.json?size=original";
 			$this->avatar_path = $this->save_avatar_locally( $image_url, 'png' ) ;
 			
 			// saving teh image failed
-			if ( ! $this->avatar_path )
+			if ( ! $this->avatar_path ) {
+				$image_url = "http://api.twitter.com/1/users/profile_image/{$user_info['screen_name']}.json?size=bigger";
+				$this->avatar_path = $this->save_avatar_locally( $image_url, 'png' ) ;
+			}
+
+			if ( ! $this->avatar_path ) 
 				return null;
 			
-			update_user_meta( $this->user->ID, '_twitter_avatar', $this->avatar_path );
+			update_user_meta( $this->user->ID, '_twitter_avatar', str_replace( $upload_dir_base, '', $this->avatar_path ) );
 		}
 		
 		$img =  wpthumb( $this->avatar_path, $size );
@@ -578,7 +588,7 @@ function _twitter_sign_in_completed_hook() {
 	$twitter_sign_in = new Twitter_Sign_in( $twitter_sso->client );
 	
 	if ( isset( $_GET['session'] ) ) {
-	    $twitter_sign_in->usingSession = (bool) $_GET['session'];
+		$twitter_sign_in->usingSession = (bool) $_GET['session'];
 	}
 	
 	$twitter_sign_in->login_completed_page();
@@ -598,15 +608,15 @@ function _twitter_sign_in_start_hook() {
 	//User $_SESSION instead of cookie - more secure, less flexible for 2+ servers
 	// store the access token in session / cookie, as we need the it when teh redirect finished
 	if ( $twitter_sso->usingSession ) {
-	    
-	    if ( !isset( $_SESSION ) )
-	    	session_start();
-	    	
-	    $_SESSION['twitter_oauth_token'] = $twitter_sso->get_sign_in_client()->access_token['oauth_token'];
-	    $_SESSION['twitter_oauth_token_secret'] = $twitter_sso->get_sign_in_client()->access_token['oauth_token_secret'];
+		
+		if ( !isset( $_SESSION ) )
+			session_start();
+			
+		$_SESSION['twitter_oauth_token'] = $twitter_sso->get_sign_in_client()->access_token['oauth_token'];
+		$_SESSION['twitter_oauth_token_secret'] = $twitter_sso->get_sign_in_client()->access_token['oauth_token_secret'];
 	} else {
-	    @setcookie('twitter_oauth_token', $twitter_sso->get_sign_in_client()->access_token['oauth_token'], 0, COOKIEPATH);
-	    @setcookie('twitter_oauth_token_secret', $twitter_sso->get_sign_in_client()->access_token['oauth_token_secret'], 0, COOKIEPATH);
+		@setcookie('twitter_oauth_token', $twitter_sso->get_sign_in_client()->access_token['oauth_token'], 0, COOKIEPATH);
+		@setcookie('twitter_oauth_token_secret', $twitter_sso->get_sign_in_client()->access_token['oauth_token_secret'], 0, COOKIEPATH);
 	}
 	
 	wp_redirect( $twitter_sso->get_sign_in_client()->get_login_url(), 303 );
