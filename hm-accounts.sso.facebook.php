@@ -518,9 +518,18 @@ class HMA_Facebook_Avatar_Option extends HMA_SSO_Avatar_Option {
 
 		$this->avatar_path = null;
 
+		$upload_dir = wp_upload_dir();
+		$upload_dir_base = $upload_dir['basedir'];
+
 		if ( get_user_meta( $this->user->ID, '_facebook_avatar_last_fetch', true ) > time() - ( 3600 * 24 * 4 ) && ( $avatar = get_user_meta( $this->user->ID, '_facebook_avatar', true ) ) && file_exists( $avatar ) ) {
 
 			$this->avatar_path = $avatar;
+
+			$cache = true;
+
+		} elseif ( get_user_meta( $this->user->ID, '_facebook_avatar_last_fetch', true ) > time() - ( 3600 * 24 * 4 ) && ( $avatar = get_user_meta( $this->user->ID, '_facebook_avatar', true ) ) && file_exists( $upload_dir_base . $avatar ) ) {
+
+			$this->avatar_path = $upload_dir_base . $avatar;
 
 			$cache = true;
 
@@ -535,7 +544,7 @@ class HMA_Facebook_Avatar_Option extends HMA_SSO_Avatar_Option {
 
 			$this->avatar_path = $this->save_avatar_locally( $image_url, 'jpg' );
 			
-			update_user_meta( $this->user->ID, '_facebook_avatar', $this->avatar_path );
+			update_user_meta( $this->user->ID, '_facebook_avatar', str_replace( $upload_dir_base, '', $this->avatar_path ) );
 			update_user_meta( $this->user->ID, '_facebook_avatar_last_fetch', time() );
 
 			$cache = false;
@@ -543,7 +552,7 @@ class HMA_Facebook_Avatar_Option extends HMA_SSO_Avatar_Option {
 		
 		if ( ! $cache )
 			$size .= '&cache=0';
-		
+
 		return wpthumb( $this->avatar_path, $size );
 	}
 	
