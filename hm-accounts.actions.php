@@ -85,9 +85,6 @@ function hma_logout() {
 
 		}
 
-		if ( isset( $sso_provider ) )
-			$sso_provider->logout( $redirect );
-
 		wp_redirect( $redirect );
 		exit;
 
