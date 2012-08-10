@@ -4,7 +4,7 @@ class HM_Accounts_SSO_Facebook_Test_Case extends WP_UnitTestCase {
 	
 	function setUp() {
 	
-		$this->fresh_user = new WP_User( wp_insert_user( array( 'user_login' => rand(0,1000) ) ) );
+		$this->fresh_user = new WP_User( wp_insert_user( array( 'user_login' => rand(0,1000), 'user_pass' => 123 ) ) );
 	
 	}
 	
@@ -55,10 +55,8 @@ class HM_Accounts_SSO_Facebook_Test_Case extends WP_UnitTestCase {
 			$facebook = HMA_SSO_Facebook::instance();
 		}
 		catch( Exception $e ) {
-		
+			$this->assertNull( $e, 'Facebook threw error' );
 		}
-		
-		$this->assertNull( $e, 'Facebook threw error' );
 		
 		$this->assertNotNull( $facebook->client );
 	
