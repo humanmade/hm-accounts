@@ -167,7 +167,11 @@ class HM_Accounts {
 			return new WP_Error( 'no-username', 'Please enter your username' );
 		}
 
-		$user = get_user_by( 'login', $args['username'] );
+		// Strip any tags then may have been put into the array
+		foreach( $args as $i => $a ) {
+			if ( is_string( $a ) )
+				$args[$i] = strip_tags( $a );
+		}
 
 		$defaults = array(
 			'remember' => false,
@@ -175,15 +179,14 @@ class HM_Accounts {
 			'password_hashed' => false
 		);
 
-		// Strip any tags then may have been put into the array
-		foreach( $args as $i => $a ) {
-			if ( is_string( $a ) )
-				$args[$i] = strip_tags( $a );
-		}
-
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( !is_numeric( $user->ID ) ) {
+		$user = get_user_by( 'login', $args['username'] );
+
+		if ( ! $user && $args['allow_email_login'] )
+			$user = get_user_by( 'email', $args['username'] );
+
+		if ( ! is_numeric( $user->ID ) ) {
 			return new WP_Error( 'unrecognized-username', 'The username you entered was not recognized');
 		}
 
