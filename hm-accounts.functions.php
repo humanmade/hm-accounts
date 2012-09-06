@@ -216,7 +216,10 @@ function hma_update_user_info( $info ) {
 		require_once( ABSPATH . 'wp-admin/includes/admin.php' );
 
 		$file = wp_handle_upload( $info['user_avatar'], array( 'test_form' => false ) );
-		$info['user_avatar_path'] = str_replace( ABSPATH, '', $file['file'] );
+
+		$upload_dir = wp_upload_dir();
+
+		$info['user_avatar_path'] = str_replace( $upload_dir['basedir'], '', $file['file'] );
 		$info['user_avatar_option'] = 'uploaded';
 		unset( $info['user_avatar'] );
 
