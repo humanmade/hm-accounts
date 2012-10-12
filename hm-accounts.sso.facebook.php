@@ -158,24 +158,18 @@ class HMA_SSO_Facebook extends HMA_SSO_Provider {
 	
 	public static function get_user_for_uid( $uid, $access_token = null, $flush = false ) {
 
-		if ( ! $flush && ( $id = wp_cache_get( 'fb-uid' . $uid . $access_token, 'user_for_uid' ) ) !== false )
-			return $id ? $id : null;
-
 		global $wpdb;
 
 		$user_id = $wpdb->get_var( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '_fb_uid' AND meta_value = '{$uid}'" );
 		
 		if( ! $user_id ) {
-			wp_cache_set( 'fb-uid' . $uid . $access_token, 0, 'user_for_uid', 3600 );
 			return null;
 		}
 		
 		if( $access_token ) {
-			wp_cache_set( 'fb-uid' . $uid . $access_token, 0, 'user_for_uid', 3600 );
 			return self::get_user_access_token( $user_id ) == $access_token ? $user_id : null;
 		}
 		
-		wp_cache_set( 'fb-uid' . $uid . $access_token, $user_id, 'user_for_uid', 3600 );
 		return $user_id;
 	}
 	
