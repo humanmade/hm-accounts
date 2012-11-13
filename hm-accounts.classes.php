@@ -249,11 +249,11 @@ add_action( 'init', function() {
 			 
 			$details = array(
 
-				'user_login' 	=> $_POST['user_login'],
-				'user_email'	=> $_POST['user_email'],
+				'user_login' 	=> ! empty( $_POST['user_login'] ) ? $_POST['user_login'] : '',
+				'user_email'	=> ! empty( $_POST['user_email'] ) ? $_POST['user_email'] : '',
 				'use_password' 	=> true,
-				'user_pass'		=> $_POST['user_pass'],
-				'user_pass2'	=> $_POST['user_pass_1'],
+				'user_pass'		=> ! empty( $_POST['user_pass'] ) ? $_POST['user_pass'] : '',
+				'user_pass2'	=> ! empty( $_POST['user_pass_1'] ) ? $_POST['user_pass_1'] : '',
 				'unique_email'	=> true,
 				'do_login' 		=> true
 			);
@@ -316,7 +316,7 @@ add_action( 'init', function() {
 				$details = array( 
 					'password' => $_POST['user_pass'], 
 					'username' => $_POST['user_login'], 
-					'remember' => $_POST['remember']
+					'remember' => ! empty( $_POST['remember'] ) ? true : false
 				);
 
 			} else {
