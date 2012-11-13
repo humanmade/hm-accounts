@@ -12,20 +12,11 @@ function hma_rewrite_rules() {
 	if ( file_exists( $login = hma_get_login_template() ) )
 		hm_add_rewrite_rule( '^' . hma_get_login_rewrite_slug() .'/?$', 'is_login=1', $login, array( 'post_query_properties' => array( 'is_home' => false, 'is_404' => false, 'is_login' => true ), 'permission' => 'logged_out_only' ) );
 
-	if ( file_exists( $login_inline = hma_get_login_inline_template() ) )
-		hm_add_rewrite_rule( '^' . hma_get_login_inline_rewrite_slug() . '/?$', 'is_login=1', $login_inline, array( 'post_query_properties' => array( 'is_home' => false, 'is_404' => false, 'is_login' => true ), 'permission' => 'logged_out_only' ) );
-
 	if ( file_exists( $lost_pass = hma_get_lost_password_template() ) )
 		hm_add_rewrite_rule( '^' . hma_get_lost_password_rewrite_slug() . '/?$', 'is_lost_password=1',  $lost_pass, array( 'post_query_properties' => array( 'is_home' => false, 'is_404' => false, 'is_lost_password' => true ), 'permission' => 'logged_out_only' ) );
 
-	if ( file_exists( $lost_pass_inline =  hma_get_lost_password_inline_template() ) )
-		hm_add_rewrite_rule( '^' . hma_get_lost_password_inline_rewrite_slug() . '/?$', 'is_lost_password=1',  $lost_pass_inline, array( 'post_query_properties' => array( 'is_home' => false, 'is_404' => false, 'is_lost_password' => true ), 'permission' => 'logged_out_only' ) );
-
 	if ( file_exists( $register = hma_get_register_template() ) )
 		hm_add_rewrite_rule( '^' . hma_get_register_rewrite_slug() . '/?$', 'is_register=1', $register, array( 'post_query_properties' => array( 'is_home' => false, 'is_404' => false, 'is_register' => true ), 'permission' => 'logged_out_only' ) );
-
-	if ( file_exists( $register_inline = hma_get_register_inline_template() ) )
-		hm_add_rewrite_rule( '^' . hma_get_register_inline_rewrite_slug() . '/?$', 'is_register=1', $register_inline, array( 'post_query_properties' => array( 'is_home' => false, 'is_404' => false, 'is_register' => true ), 'permission' => 'logged_out_only' ) );
 
 	if ( file_exists( $edit_profile = hma_get_edit_profile_template() ) )
 		hm_add_rewrite_rule( 

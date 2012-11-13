@@ -342,3 +342,19 @@ add_action( 'init', function() {
 		}
 	) );
 } );
+
+/**
+ * Controller to catch the registration submitting
+ */
+add_action( 'init', function() {
+
+	hm_add_rewrite_rule( array(
+		'rewrite' => '^login/lost-password/submit/?$',
+		'request_callback' => function() {
+
+			$success = hma_lost_password( $_POST['user_email'] );
+
+			wp_redirect( wp_get_referer() );
+		}
+	) );
+} );
