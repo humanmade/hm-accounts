@@ -187,6 +187,10 @@ class HM_Accounts {
 			$user = get_user_by( 'email', $args['username'] );
 
 		if ( ! is_numeric( $user->ID ) ) {
+
+			if ( $args['allow_email_login'] )
+				return new WP_Error( 'unrecognized-username', 'The username / email you entered was not recognised.');
+
 			return new WP_Error( 'unrecognized-username', 'The username you entered was not recognised.');
 		}
 
