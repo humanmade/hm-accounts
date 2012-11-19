@@ -187,21 +187,21 @@ class HM_Accounts {
 			$user = get_user_by( 'email', $args['username'] );
 
 		if ( ! is_numeric( $user->ID ) ) {
-			return new WP_Error( 'unrecognized-username', 'The username you entered was not recognized');
+			return new WP_Error( 'unrecognized-username', 'The username you entered was not recognised.');
 		}
 
 		if ( $args['password_hashed'] != true ) {
 
 			if ( ! wp_check_password( $args['password'], $user->user_pass ) ) {
 
-				return new WP_Error('incorrect-password', 'The password you entered is incorrect');
+				return new WP_Error('incorrect-password', 'The password you entered is incorrect.');
 			}
 
 		} else {
 
 			if ( $args['password'] != $user->user_pass ) {
 
-				return new WP_Error('incorrect-password', 'The password you entered is incorrect');
+				return new WP_Error('incorrect-password', 'The password you entered is incorrect.');
 			}
 
 		}
