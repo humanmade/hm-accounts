@@ -12,8 +12,13 @@ function hma_do_login_redirect( $return, $do_redirect_on_error = false ) {
 
 		do_action( 'hma_login_submitted_error', $return );
 		
+		if ( ! empty( $_REQUEST['redirect_to'] ) )
+			$redirect = add_query_arg( 'redirect_to', $_REQUEST['redirect_to'], wp_get_referer() );
+		else
+			$redirect = wp_get_referer();
+
 		if ( $do_redirect_on_error ) {
-			wp_redirect( wp_get_referer(), 303 );
+			wp_redirect( $redirect, 303 );
 			exit;
 		}
 		
