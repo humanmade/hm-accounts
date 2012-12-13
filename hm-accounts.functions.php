@@ -386,7 +386,7 @@ function hma_override_reset_password($key, $login) {
 	}
 
 	// Generate something random for a password...
-	$new_pass = wp_generate_password();
+	$new_pass = apply_filters( 'hma_password_reset_password', wp_generate_password() );
 
 	do_action('password_reset', $user, $new_pass);
 

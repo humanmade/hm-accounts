@@ -136,8 +136,6 @@ add_action( 'hma_lost_password_submitted', 'hma_lost_password_submitted' );
  */
 function hma_profile_submitted() {
 
-	check_admin_referer( 'hma_profile_submitted' );
-
 	$current_user = wp_get_current_user();
 
 	// check the user is logged in

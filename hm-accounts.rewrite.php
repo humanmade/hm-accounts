@@ -46,6 +46,14 @@ function hma_rewrite_rules() {
 	hm_add_rewrite_rule( '^profile/sso/authenticated/?$', 'is_login=1' );
 	hm_add_rewrite_rule( '^profile/sso/deauthenticate/?$', 'is_login=1' );
 
+	hm_add_rewrite_rule( array(
+		'regex' => '^' . hma_get_edit_profile_rewrite_slug() . '/submit/?$', 
+		'request_callback' => function() {
+			hma_profile_submitted();
+			exit;
+		}
+	));
+
 	do_action( 'hma_added_rewrite_rules' );
 
 }
