@@ -53,7 +53,8 @@ class HM_Accounts {
 			'user_login' => '',
 			'user_email' => '',
 			'user_pass' => false,
-			'role' => 'subscriber'
+			'role' => 'subscriber',
+			'set_cookie' => true
 		);
 
 		$original_args = $user_data;
@@ -101,12 +102,14 @@ class HM_Accounts {
 			$email = hma_email_registration_success( $user, $args['user_pass'] );
 
 		// If they chose a password, login them in
-		if ( ( $args['use_password ']== 'true' || $args['do_login'] == true ) && !empty( $user->ID ) && php_sapi_name() !== 'cli' ) :
+		if ( ( $args['use_password ']== 'true' || $args['do_login'] == true ) && !empty( $user->ID ) ) :
 
 			wp_login( $user->user_login, $args['user_pass'] );
 
-			wp_clearcookie();
-			wp_setcookie($user->user_login, $args['user_pass'], false);
+			if ( $args['set_cookie'] ) {
+				wp_clearcookie();
+				wp_setcookie($user->user_login, $args['user_pass'], false);
+			}
 
 			do_action( 'wp_login', $user->user_login );
 
@@ -176,7 +179,8 @@ class HM_Accounts {
 		$defaults = array(
 			'remember' => false,
 			'allow_email_login' => true,
-			'password_hashed' => false
+			'password_hashed' => false,
+			'set_cookie' => true
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -210,8 +214,10 @@ class HM_Accounts {
 
 		}
 
-		wp_set_auth_cookie( $user->ID, $args['remember'] );
-		wp_set_current_user( $user->ID );
+		if ( $args['set_cookie'] ) {
+			wp_set_auth_cookie( $user->ID, $args['remember'] );
+			wp_set_current_user( $user->ID );
+		}
 
 		do_action( 'wp_login', $user->user_login );
 		do_action( 'hma_log_user_in', $user);
