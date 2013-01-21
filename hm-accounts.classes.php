@@ -101,7 +101,7 @@ class HM_Accounts {
 			$email = hma_email_registration_success( $user, $args['user_pass'] );
 
 		// If they chose a password, login them in
-		if ( ( $args['use_password ']== 'true' || $args['do_login'] == true ) && !empty( $user->ID ) ) :
+		if ( ( $args['use_password ']== 'true' || $args['do_login'] == true ) && !empty( $user->ID ) && php_sapi_name() !== 'cli' ) :
 
 			wp_login( $user->user_login, $args['user_pass'] );
 
