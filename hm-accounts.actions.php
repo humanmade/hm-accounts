@@ -99,37 +99,6 @@ function hma_logout() {
 add_action( 'init', 'hma_logout', 9 );
 
 /**
- * Catch the lost password form
- *
- * @return null
- */
-function hma_lost_password_submitted() {
-
-	$success = hma_lost_password( $_POST['user_email'] );
-
-	if ( is_wp_error( $success ) ) {
-
-		do_action( 'hma_lost_password_submitted_error', $success );
-
-		return;
-
-	} else {
-
-		do_action( 'hma_lost_password_submitted_success', $success );
-
-		if ( isset( $_REQUEST['login_source'] ) && $_REQUEST['login_source'] == 'popup' )
-			wp_redirect( get_bloginfo( 'lost_password_inline_url', 'display' ) . '?message=' . $success['text'] );
-
-		else
-			wp_redirect( get_bloginfo( 'lost_password_url', 'display' ) . '?message=' . $success['text'] );
-
-		exit;
-
-	}
-}
-add_action( 'hma_lost_password_submitted', 'hma_lost_password_submitted' );
-
-/**
  * Process the edit profile form submission
  *
  * @return null
