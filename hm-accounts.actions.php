@@ -18,7 +18,7 @@ function hma_do_login_redirect( $return, $do_redirect_on_error = false ) {
 			$redirect = wp_get_referer();
 
 		if ( $do_redirect_on_error ) {
-			wp_redirect( $redirect, 303 );
+			wp_redirect( add_query_arg( 'errored', time(), $redirect ), 303 );
 			exit;
 		}
 		
