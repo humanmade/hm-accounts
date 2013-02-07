@@ -62,11 +62,14 @@ function hma_lost_password( $email ) {
 
 	$errors = retrieve_password();
 
-	if ( !is_wp_error( $errors ) ) {
+	if ( ! is_wp_error( $errors ) ) {
 		hm_success_message( 'You have been sent an email with a link to reset your password', 'lost-password' );
 		return array( 'status' => 'success', 'text' => 'success' );
 	}
 
+	if ( $errors->get_error_code() == 'no_password_reset' )
+		hm_error_message( 'Sorry, this user\'s password cannot be changed', 'lost-password' );
+		
 	hm_error_message( 'There was an unknown error', 'lost-password' );
 
 	return new WP_Error('unknown');
