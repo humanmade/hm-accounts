@@ -102,7 +102,7 @@ class HM_Accounts {
 			$email = hma_email_registration_success( $user, $args['user_pass'] );
 
 		// If they chose a password, login them in
-		if ( ( $args['use_password'] == 'true' || $args['do_login'] == true ) && !empty( $user->ID ) ) :
+		if ( ( $args['do_login'] == true ) && ! empty( $user->ID ) ) :
 
 			wp_signon( array( 'user_login' => $user->user_login, 'user_password' => $args['user_pass'] ) );
 			do_action( 'wp_login', $user->user_login );
