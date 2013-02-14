@@ -84,8 +84,7 @@ function hma_lost_password_email( $message, $key ) {
 	$user = get_user_by_email(trim($_POST['user_login']));
 	$reset_url = get_bloginfo( 'lost_password_url', 'display' ) . '?action=rp&key=' . $key . '&login=' . $user->user_login;
 
-	// TODO this template path should be filterable
-	if ( file_exists( $file = get_stylesheet_directory() . '/email.lost-password.php' ) ) {
+	if ( file_exists( $file = apply_filters( 'hma_lost_password_email_path', get_stylesheet_directory() . '/email.lost-password.php' ) ) ) {
 		ob_start();
 		include( $file );
 		$message = ob_get_contents();
@@ -136,7 +135,7 @@ function hma_reset_password_email( $message, $new_pass ) {
 	$user = get_userdatabylogin( $_GET['login'] );
 
 	// TODO template path should be filterable
-	if ( file_exists( $file = get_stylesheet_directory() . '/email.reset-password.php' ) ) {
+	if ( file_exists( $file = apply_filters( 'hma_reset_password_email_path', get_stylesheet_directory() . '/email.reset-password.php' ) ) ) {
 		ob_start();
 		include( $file );
 		$message = ob_get_contents();
