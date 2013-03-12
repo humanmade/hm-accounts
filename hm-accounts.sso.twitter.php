@@ -109,6 +109,11 @@ class HMA_SSO_Twitter extends HMA_SSO_Provider {
 		return $user_id;
 	}
 	
+	/**
+	 * Log in the user. They will be auto logged in if they are signed into twitter and have an account linked with thaht
+	 * 
+	 * @return WP_Error|int
+	 */
 	public function login( $details = array() ) {
 		
 		$details = wp_parse_args( $details, array( 'remember' => false ) );
@@ -156,7 +161,7 @@ class HMA_SSO_Twitter extends HMA_SSO_Provider {
 		do_action( 'hma_login_submitted_success' );
 		do_action( 'wp_login', get_userdata( $user_id )->user_login );
 		
-		return true;
+		return $user_id;
 	}
 	
 	public function register() {
