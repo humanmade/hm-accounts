@@ -137,16 +137,7 @@ function hma_get_user_profile_rewrite_slug() {
  * @return string
  */
 function hma_get_login_template() {
-	return apply_filters( 'hma_login_template', get_stylesheet_directory() . '/login.php' );
-}
-
-/**
- * Return the path to the login inline template
- *
- * @return string
- */
-function hma_get_login_inline_template() {
-	return  apply_filters( 'hma_login_inline_template', get_stylesheet_directory() . '/login-popup.php' );
+	return apply_filters( 'hma_login_template', locate_template( 'login.php' ) );
 }
 
 /**
