@@ -194,10 +194,10 @@ function hma_profile_submitted() {
 
 	} else {
 
-	if ( $_POST['redirect_to'] )
+	if ( ! empty( $_POST['redirect_to'] ) )
 	    $redirect = esc_attr( $_POST['redirect_to'] );
 
-	elseif ( $_POST['referer'] )
+	elseif ( ! empty( $_POST['referer'] ) )
 	    $redirect = esc_attr( $_POST['referer'] );
 
 	elseif ( wp_get_referer() )
