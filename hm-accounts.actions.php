@@ -117,7 +117,7 @@ function hma_profile_submitted() {
 		if ( ( ! hma_is_profile_field( $key ) && hma_custom_profile_fields() ) || ( ! hma_custom_profile_fields() && strpos( $key, 'user_' ) !== 0 ) )
 			continue;
 
-		$user_data[$key] = is_string( $value ) ? esc_attr( $value ) : array_map( 'esc_attr', $value );
+		$user_data[$key] = is_string( $value ) ? sanitize_text_field( $value ) : array_map( 'sanitize_text_field', $value );
 
 	}
 
@@ -128,45 +128,49 @@ function hma_profile_submitted() {
 	}
 	
 	if ( ! empty( $_POST['user_pass'] ) )
-		$user_data['user_pass'] = esc_attr( $_POST['user_pass'] );
+		$user_data['user_pass'] = $_POST['user_pass'];
 	
 	else
 		unset( $user_data['user_pass'] );
 
 	if ( ! empty( $_POST['user_email'] ) )
-		$user_data['user_email'] = esc_attr( $_POST['user_email'] );
+		$user_data['user_email'] = sanitize_email( $_POST['user_email'] );
 
 	$user_data['ID'] = $current_user->ID;
 
 	if ( isset( $_POST['first_name'] ) )
-		$user_data['first_name'] = esc_attr( $_POST['first_name'] );
+		$user_data['first_name'] = sanitize_text_field( $_POST['first_name'] );
 
 	if ( isset( $_POST['last_name'] ) )
-		$user_data['last_name'] = esc_attr( $_POST['last_name'] );
+		$user_data['last_name'] = sanitize_text_field( $_POST['last_name'] );
 
 	if ( isset( $_POST['nickname'] ) )
-		$user_data['nickname'] = esc_attr( $_POST['nickname'] );
+		$user_data['nickname'] = sanitize_text_field( $_POST['nickname'] );
 
 	$user_data['user_login'] = $current_user->user_login;
 
 	if ( isset( $_POST['description'] ) )
-		$user_data['description'] = esc_attr( $_POST['description'] );
+		$user_data['description'] = wp_kses_post( $_POST['description'] );
 
 	if ( isset( $_POST['display_name'] ) ) {
 
-		$name = trim( $_POST['display_name'] );
-		$match = preg_match_all( '/([\S^\,]*)/', esc_attr( $_POST['display_name'] ), $matches );
+		$name = trim( sanitize_text_field( $_POST['display_name'] ) );
+		$match = preg_match_all( '/([\S^\,]*)/', $name, $matches );
 
 		foreach( array_filter( (array) $matches[0] ) as $match )
 			$name = trim( str_replace( $match, $user_data[$match], $name ) );
 
 		$user_data['display_name'] = $name;
-		$user_data['display_name_preference'] = esc_attr( $_POST['display_name'] );
+		$user_data['display_name_preference'] = $name;
 
 	}
 
-	if ( !empty( $_FILES['user_avatar']['name'] ) )
-		$user_data['user_avatar'] = $_FILES['user_avatar'];
+	if ( ! empty( $_FILES['user_avatar']['name'] ) ) {
+
+		if ( wp_check_filetype_and_ext( $_FILES['user_avatar']['tmp_name'], $_FILES['user_avatar']['name'] ) )
+
+			$user_data['user_avatar'] = $_FILES['user_avatar'];
+	}
 
 	$success = hma_update_user_info( $user_data );
 
@@ -180,7 +184,7 @@ function hma_profile_submitted() {
 
 			foreach( array_filter( (array) $_POST['unlink_sso_providers'] ) as $sso_provider_id ) {
 
-				$sso_provider = hma_get_sso_provider( $sso_provider_id );
+				$sso_provider = hma_get_sso_provider( sanitize_key( $sso_provider_id ) );
 				$sso_provider->unlink();
 
 			}
@@ -195,10 +199,10 @@ function hma_profile_submitted() {
 	} else {
 
 	if ( ! empty( $_POST['redirect_to'] ) )
-	    $redirect = esc_attr( $_POST['redirect_to'] );
+	    $redirect = $_POST['redirect_to'];
 
 	elseif ( ! empty( $_POST['referer'] ) )
-	    $redirect = esc_attr( $_POST['referer'] );
+	    $redirect = $_POST['referer'];
 
 	elseif ( wp_get_referer() )
 	    $redirect = wp_get_referer();

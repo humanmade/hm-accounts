@@ -247,17 +247,17 @@ add_action( 'init', function() {
 		'rewrite' => '^register/submit/?$',
 		'request_callback' => function() {
 
-			$type = ! empty( $_GET['type'] ) ? $_GET['type']  : 'manual';
+			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
 
 			$hm_accounts = HM_Accounts::get_instance( $type );
 			 
 			$details = array(
 
-				'user_login' 	=> ! empty( $_POST['user_login'] ) ? $_POST['user_login'] : '',
-				'user_email'	=> ! empty( $_POST['user_email'] ) ? $_POST['user_email'] : '',
+				'user_login' 	=> ! empty( $_POST['user_login'] ) ? santize_text_field( $_POST['user_login'] ) : '',
+				'user_email'	=> ! empty( $_POST['user_email'] ) ? sanitize_email( $_POST['user_email'] ) : '',
 				'use_password' 	=> true,
-				'user_pass'		=> ! empty( $_POST['user_pass'] ) ? $_POST['user_pass'] : '',
-				'user_pass2'	=> ! empty( $_POST['user_pass_1'] ) ? $_POST['user_pass_1'] : '',
+				'user_pass'		=> ! empty( $_POST['user_pass'] ) ? (string) $_POST['user_pass'] : '',
+				'user_pass2'	=> ! empty( $_POST['user_pass_1'] ) ? (string) $_POST['user_pass_1'] : '',
 				'unique_email'	=> true,
 				'do_login' 		=> true
 			);
@@ -310,7 +310,7 @@ add_action( 'init', function() {
 		'rewrite' => '^login/submit/?$',
 		'request_callback' => function() {
 
-			$type = ! empty( $_GET['type'] ) ? $_GET['type']  : 'manual';
+			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
 
 			$hm_accounts = HM_Accounts::get_instance( $type );
 
@@ -319,7 +319,7 @@ add_action( 'init', function() {
 
 				$details = array( 
 					'password' => $_POST['user_pass'], 
-					'username' => $_POST['user_login'], 
+					'username' => santize_text_field( $_POST['user_login'] ),
 					'remember' => ! empty( $_POST['remember'] ) ? true : false
 				);
 
@@ -356,7 +356,7 @@ add_action( 'init', function() {
 		'rewrite' => '^login/lost-password/submit/?$',
 		'request_callback' => function() {
 
-			$success = hma_lost_password( $_POST['user_email'] );
+			$success = hma_lost_password( sanitize_email( $_POST['user_email'] ) );
 
 			wp_redirect( wp_get_referer() );
 		}

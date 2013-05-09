@@ -48,8 +48,8 @@ function hma_lost_password( $email ) {
 		return new WP_Error('unrecognized-email');
 	}
 
-	$_POST['user_email'] = $email;
-	$_POST['user_login'] = $email;
+	$_POST['user_email'] = sanitize_email( $email );
+	$_POST['user_login'] = sanitize_email( $email );
 
 	// Grab the retrieve password function from wp-login.php
 	ob_start();
@@ -84,7 +84,7 @@ function hma_lost_password( $email ) {
  */
 function hma_lost_password_email( $message, $key ) {
 
-	$user = get_user_by_email(trim($_POST['user_login']));
+	$user = get_user_by_email( sanitize_email( $_POST['user_login'] ) );
 	$reset_url = get_bloginfo( 'lost_password_url', 'display' ) . '?action=rp&key=' . $key . '&login=' . $user->user_login;
 
 	if ( file_exists( $file = apply_filters( 'hma_lost_password_email_path', get_stylesheet_directory() . '/email.lost-password.php' ) ) ) {
@@ -135,7 +135,7 @@ function hma_reset_password( $user_login, $key ) {
  */
 function hma_reset_password_email( $message, $new_pass ) {
 
-	$user = get_userdatabylogin( $_GET['login'] );
+	$user = get_userdatabylogin( sanitize_text_field( $_GET['login'] ) );
 
 	// TODO template path should be filterable
 	if ( file_exists( $file = apply_filters( 'hma_reset_password_email_path', get_stylesheet_directory() . '/email.reset-password.php' ) ) ) {
