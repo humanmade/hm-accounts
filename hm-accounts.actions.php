@@ -13,7 +13,7 @@ function hma_do_login_redirect( $return, $do_redirect_on_error = false ) {
 		do_action( 'hma_login_submitted_error', $return );
 		
 		if ( ! empty( $_REQUEST['redirect_to'] ) )
-			$redirect = add_query_arg( 'redirect_to', $_REQUEST['redirect_to'], wp_get_referer() );
+			$redirect = add_query_arg( 'redirect_to', esc_url_raw( $_REQUEST['redirect_to'] ), wp_get_referer() );
 		else
 			$redirect = wp_get_referer();
 
@@ -27,10 +27,10 @@ function hma_do_login_redirect( $return, $do_redirect_on_error = false ) {
 	} else {
 
 		if ( ! empty( $_REQUEST['redirect_to'] ) )
-			$redirect = urldecode( $_REQUEST['redirect_to'] );
+			$redirect = esc_url_raw( urldecode( $_REQUEST['redirect_to'] ) );
 
 		elseif ( ! empty( $_POST['referer'] ) ) //success
-			$redirect = $_POST['referer'];
+			$redirect = esc_url_raw( $_POST['referer'] );
 
 		else
 			$redirect = get_bloginfo('url');
@@ -79,7 +79,7 @@ function hma_logout() {
 		wp_logout();
 
 		if ( ! empty( $_GET['redirect_to'] ) ) {
-		    $redirect = $_GET['redirect_to'];
+		    $redirect = esc_url_raw( $_GET['redirect_to'] );
 
 		} else {
 		    $redirect = remove_query_arg( 'action', wp_get_referer() );
@@ -199,10 +199,10 @@ function hma_profile_submitted() {
 	} else {
 
 	if ( ! empty( $_POST['redirect_to'] ) )
-	    $redirect = $_POST['redirect_to'];
+	    $redirect = esc_url_raw( $_POST['redirect_to'] );
 
 	elseif ( ! empty( $_POST['referer'] ) )
-	    $redirect = $_POST['referer'];
+	    $redirect = esc_url_raw( $_POST['referer'] );
 
 	elseif ( wp_get_referer() )
 	    $redirect = wp_get_referer();

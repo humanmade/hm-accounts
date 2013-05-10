@@ -286,10 +286,10 @@ add_action( 'init', function() {
 				do_action( 'hma_register_completed', $hm_return );
 
 				if ( ! empty( $_POST['redirect_to'] ) )
-					$redirect = $_POST['redirect_to'];
+					$redirect = esc_url_raw( $_POST['redirect_to'] );
 
 				elseif ( ! empty( $_POST['referer'] ) )
-					$redirect = $_POST['referer'];
+					$redirect = esc_url_raw( $_POST['referer'] );
 
 				else
 					$redirect = get_bloginfo( 'edit_profile_url', 'display' );
