@@ -275,10 +275,10 @@ class HMA_SSO_Twitter extends HMA_SSO_Provider {
 			return new WP_Error( 'sso-provider-already-linked' );
 		}
 		
-		update_user_meta( get_current_user_id(), '_twitter_oauth_token', $this->access_token['oauth_token'] );
+		update_user_meta( get_current_user_id(), '_twitter_oauth_token', $this->access_token );
 		update_user_meta( get_current_user_id(), '_twitter_oauth_token_secret', $this->access_token['oauth_token_secret'] );
 		
-		update_user_meta( get_current_user_id(), '_twitter_access_token', $this->access_token );
+		update_user_meta( get_current_user_id(), '_twitter_access_token', $this->access_token['oauth_token']] );
 		update_user_meta( get_current_user_id(), '_twitter_uid', $info->id );
 		
 		hm_success_message( 'Successfully connected the Twitter account "' . $info->screen_name . '" with your profile.', 'update-user' );
