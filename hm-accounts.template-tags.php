@@ -17,15 +17,15 @@ function hma_get_current_user_avatar( $width, $height, $crop = true ) {
 }
 
 function hma_current_user_avatar( $width, $height, $crop = true ) { ?>
-	<img src="<?php echo hma_get_current_user_avatar( $width, $height, $crop ); ?>" width="<?php echo $width; ?>" height="<?php echo $height; ?>" class="avatar" />
+	<img src="<?php echo esc_attr( hma_get_current_user_avatar( $width, $height, $crop ) ); ?>" width="<?php echo esc_attr( $width ); ?>" height="<?php echo esc_attr( $height ); ?>" class="avatar" />
 <?php }
 
 function hma_displayed_user_avatar( $width, $height, $crop = true ) { ?>
-	<img src="<?php echo hma_get_displayed_user_avatar( $width, $height, $crop ); ?>" width="<?php echo $width; ?>" height="<?php echo $height; ?>" class="avatar" />
+	<img src="<?php echo esc_attr( hma_get_displayed_user_avatar( $width, $height, $crop ) ); ?>" width="<?php echo esc_attr( $width ); ?>" height="<?php echo esc_attr( $height ); ?>" class="avatar" />
 <?php }
 
 function hma_user_avatar( $user_id, $width, $height, $crop = true ) { ?>
-	<img src="<?php echo hma_get_avatar( $user_id, $width, $height, $crop ); ?>" width="<?php echo $width; ?>" height="<?php echo $height; ?>" class="avatar" />
+	<img src="<?php echo esc_attr( hma_get_avatar( $user_id, $width, $height, $crop ) ); ?>" width="<?php echo esc_attr( $width ); ?>" height="<?php echo esc_attr( $height ); ?>" class="avatar" />
 <?php }
 
 function hma_get_displayed_user_url() {

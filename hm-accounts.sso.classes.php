@@ -232,7 +232,7 @@ abstract class HMA_SSO_Provider extends HM_Accounts {
 			do_action( 'hma_sso_connect_with_account_completed', $this, $result );
 			
 			if ( ! empty( $_GET['redirect_to'] ) )
-				$redirect = $_GET['redirect_to'];
+				$redirect = esc_url_raw( $_GET['redirect_to'] );
 			else
 				$redirect = get_bloginfo( 'edit_profile_url', 'display' );
 
@@ -258,7 +258,7 @@ abstract class HMA_SSO_Provider extends HM_Accounts {
 		//re-urlencode redirect_to
 		if ( ! empty( $args['redirect_to'] ) ) {
 			
-			$url = add_query_arg( 'redirect_to', urlencode( $args['redirect_to'] ), $url );
+			$url = add_query_arg( 'redirect_to', esc_url_raw( urlencode( $args['redirect_to'] ) ), $url );
 			unset( $args['redirect_to'] );
 		}
 		
