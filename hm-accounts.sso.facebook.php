@@ -228,7 +228,7 @@ class HMA_SSO_Facebook extends HMA_SSO_Provider {
 			return null;
 		
 		if ( ! empty( $_REQUEST['access_token'] ) )
-			$this->client->setAccessToken( $_REQUEST['access_token'] );
+			$this->client->setAccessToken( sanitize_text_field( $_REQUEST['access_token'] ) );
 		
 		if ( !$this->client->getUser() ) {
 			return null;

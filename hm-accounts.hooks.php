@@ -78,7 +78,7 @@ function hma_check_for_password_reset() {
 
 	if ( isset( $_GET['action'] ) && $_GET['action'] == 'rp' && !empty( $_GET['key'] ) && !empty( $_GET['login'] ) ) {
 
-		$status = hma_reset_password(  $_GET['login'], $_GET['key'] );
+		$status = hma_reset_password( sanitize_text_field( $_GET['login'] ), sanitize_text_field( $_GET['key'] ) );
 
 		if ( !is_wp_error( $status ) ) {
 			do_action( 'hma_lost_password_reset_success' );
@@ -247,7 +247,7 @@ function hma_admin_add_avatar_save( $user_id ) {
 		return false;
 
 	if ( isset( $_POST['hma_user_avatar_service'] )  )
-		update_user_meta( $user_id, 'user_avatar_option', $_POST['hma_user_avatar_service'] );
+		update_user_meta( $user_id, 'user_avatar_option', sanitize_key( $_POST['hma_user_avatar_service'] ) );
 
 	if ( isset( $_FILES['hma_user_avatar_file'] ) && $_FILES['hma_user_avatar_file'] != '' ) {
 
