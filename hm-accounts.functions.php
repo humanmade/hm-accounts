@@ -49,7 +49,7 @@ function hma_lost_password( $email ) {
 	}
 
 	$_POST['user_email'] = sanitize_email( $email );
-	$_POST['user_login'] = sanitize_email( $email );
+	$_POST['user_login'] = sanitize_email( $email ); // lost password takes emails, but we need $_POST['user_login'] populated with this data
 
 	// Grab the retrieve password function from wp-login.php
 	ob_start();
