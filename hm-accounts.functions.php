@@ -84,7 +84,7 @@ function hma_lost_password( $email ) {
  */
 function hma_lost_password_email( $message, $key ) {
 
-	$user = get_user_by_email( sanitize_email( $_POST['user_login'] ) );
+	$user = get_user_by_email( sanitize_email( $_POST['user_login'] ) ); // field is called user_login though wil contain an email address
 	$reset_url = get_bloginfo( 'lost_password_url', 'display' ) . '?action=rp&key=' . $key . '&login=' . $user->user_login;
 
 	if ( file_exists( $file = apply_filters( 'hma_lost_password_email_path', get_stylesheet_directory() . '/email.lost-password.php' ) ) ) {
