@@ -135,7 +135,7 @@ function hma_reset_password( $user_login, $key ) {
  */
 function hma_reset_password_email( $message, $new_pass ) {
 
-	$user = get_userdatabylogin( sanitize_text_field( $_GET['login'] ) );
+	$user = get_user_by( 'login', sanitize_text_field( $_GET['login'] ) );
 
 	// TODO template path should be filterable
 	if ( file_exists( $file = apply_filters( 'hma_reset_password_email_path', get_stylesheet_directory() . '/email.reset-password.php' ) ) ) {
