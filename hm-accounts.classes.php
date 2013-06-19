@@ -253,7 +253,7 @@ add_action( 'init', function() {
 			 
 			$details = array(
 
-				'user_login' 	=> ! empty( $_POST['user_login'] ) ? santize_text_field( $_POST['user_login'] ) : '',
+				'user_login' 	=> ! empty( $_POST['user_login'] ) ? sanitize_text_field( $_POST['user_login'] ) : '',
 				'user_email'	=> ! empty( $_POST['user_email'] ) ? sanitize_email( $_POST['user_email'] ) : '',
 				'use_password' 	=> true,
 				'user_pass'		=> ! empty( $_POST['user_pass'] ) ? (string) $_POST['user_pass'] : '',
@@ -319,7 +319,7 @@ add_action( 'init', function() {
 
 				$details = array( 
 					'password' => $_POST['user_pass'], 
-					'username' => santize_text_field( $_POST['user_login'] ),
+					'username' => sanitize_text_field( $_POST['user_login'] ),
 					'remember' => ! empty( $_POST['remember'] ) ? true : false
 				);
 
