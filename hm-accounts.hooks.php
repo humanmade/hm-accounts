@@ -161,7 +161,7 @@ function hma_admin_add_avatar( $user ) { ?>
 		<table class="form-table">
 
 			<?php $avatar_options = hma_get_avatar_options();
-			$current_avatar_service = get_user_meta( $user->ID, 'user_avatar_option' );
+			$current_avatar_service = get_user_meta( $user->ID, 'user_avatar_option', true );
 
 		if ( $current_avatar_service ) :  ?>
 
@@ -187,7 +187,7 @@ function hma_admin_add_avatar( $user ) { ?>
 
 		    			<label>
 
-		    				<input type="radio" name="hma_user_avatar_service" value="<?php echo $avatar_option->service_id; ?>"
+							<input type="radio" name="hma_user_avatar_service" value="<?php echo $avatar_option->service_id; ?>"
 
 		    					<?php if ( ! empty( $current_avatar_service ) )
 			    					checked( $avatar_option->service_id, $current_avatar_service );
