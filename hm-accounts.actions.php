@@ -62,41 +62,6 @@ function hm_parse_redirect( $redirect ) {
 
 }
 
-/**
- * Log the user out
- *
- * @return null
- */
-function hma_logout() {
-
-	if ( isset( $_GET['action'] ) && $_GET['action'] == 'logout' ) :
-
-		// logout of a sso provider
-		if ( hma_is_logged_in_with_sso_provider() )
-			$sso_provider = hma_get_logged_in_sso_provider();
-
-		// Fire the WordPress logout
-		wp_logout();
-
-		if ( ! empty( $_GET['redirect_to'] ) ) {
-		    $redirect = esc_url_raw( $_GET['redirect_to'] );
-
-		} else {
-		    $redirect = remove_query_arg( 'action', wp_get_referer() );
-
-		    // Redirect to homepage if logged out from wp-admin
-		    if ( strpos( $redirect, '/wp-admin' ) )
-		    	$redirect = get_bloginfo( 'url' );
-
-		}
-
-		wp_redirect( $redirect );
-		exit;
-
-	endif;
-
-}
-add_action( 'init', 'hma_logout', 9 );
 
 /**
  * Process the edit profile form submission
@@ -208,7 +173,7 @@ function hma_profile_submitted() {
 	    $redirect = wp_get_referer();
 
 	else
-	    $redirect = get_bloginfo( 'edit_profile_url', 'display' );
+	    $redirect = hma_get_edit_profile_url();
 
 	do_action( 'hma_update_user_profile_completed', $redirect );
 

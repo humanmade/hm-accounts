@@ -1,197 +1,8 @@
 <?php
-/**
- * Controller to catch the registration submitting
- */
-add_action( 'init', function() {
-
-	hm_add_rewrite_rule( array(
-		'rewrite' => '^register/submit/?$',
-		'request_callback' => function() {
-
-			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
-
-			$hm_accounts = HM_Accounts::get_instance( $type );
-			 
-			$details = array(
-
-				'user_login' 	=> ! empty( $_POST['user_login'] ) ? sanitize_text_field( $_POST['user_login'] ) : '',
-				'user_email'	=> ! empty( $_POST['user_email'] ) ? sanitize_email( $_POST['user_email'] ) : '',
-				'use_password' 	=> true,
-				'user_pass'		=> ! empty( $_POST['user_pass'] ) ? (string) $_POST['user_pass'] : '',
-				'user_pass2'	=> ! empty( $_POST['user_pass_1'] ) ? (string) $_POST['user_pass_1'] : '',
-				'unique_email'	=> true,
-				'do_login' 		=> true
-			);
-
-			// also pass any registered profile fields
-			foreach ( hma_get_profile_fields() as $field ) {
-				if ( isset( $_POST[$field] ) )
-					$details[$field] = $_POST[$field];
-			}
-
-			$details = apply_filters( 'hma_register_args', $details );
-
-			$hm_accounts->set_registration_data( $details );
-
-			$hm_return = $hm_accounts->register();
-
-			if ( is_wp_error( $hm_return ) ) {
-
-				do_action( 'hma_register_submitted_error', $hm_return );
-				hm_error_message( $hm_return->get_error_message() ? $hm_return->get_error_message() : 'Something went wrong, error code: ' . $hm_return->get_error_code(), 'register' );
-				wp_redirect( wp_get_referer() );
-				exit;
-
-			} else {
-
-				do_action( 'hma_register_completed', $hm_return );
-
-				if ( ! empty( $_POST['redirect_to'] ) )
-					$redirect = esc_url_raw( $_POST['redirect_to'] );
-
-				elseif ( ! empty( $_POST['referer'] ) )
-					$redirect = esc_url_raw( $_POST['referer'] );
-
-				else
-					$redirect = get_bloginfo( 'edit_profile_url', 'display' );
-
-				wp_redirect( $redirect );
-				exit;
-			}
-		}
-	) );
-} );
-
-/**
- * Controller to catch the registration submitting
- */
-add_action( 'init', function() {
-
-	hm_add_rewrite_rule( array(
-		'rewrite' => '^login/submit/?$',
-		'request_callback' => function() {
-
-			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
-
-			$hm_accounts = HM_Accounts::get_instance( $type );
-
-			// normal login form authentication
-			if ( isset( $_POST['user_pass'] ) ) {
-
-				$details = array( 
-					'password' => $_POST['user_pass'], 
-					'username' => sanitize_text_field( $_POST['user_login'] ),
-					'remember' => ! empty( $_POST['remember'] ) ? true : false
-				);
-
-			} else {
-				$details = array();	
-			}
-			
-			$details = apply_filters( 'hma_login_args', $details );
-
-			$status = $hm_accounts->login( $details );
-
-			if ( is_wp_error( $status ) )
-				hm_error_message( 
-					apply_filters( 
-						'hma_login_error_message', 
-						$status->get_error_message() ? $status->get_error_message() : 'Something went wrong, error code: ' . $status->get_error_code(), 
-						$status
-					), 
-					'login' 
-				);
-
-
-			hma_do_login_redirect( $status, true );
-		}
-	) );
-} );
-
-/**
- * Controller to catch the registration submitting
- */
-add_action( 'init', function() {
-
-	hm_add_rewrite_rule( array(
-		'rewrite' => '^login/lost-password/submit/?$',
-		'request_callback' => function() {
-
-			$success = hma_lost_password( sanitize_email( $_POST['user_email'] ) );
-
-			wp_redirect( wp_get_referer() );
-		}
-	) );
-} );
-
-/**
- * Check for form submissions
- *
- * @return null
- */
-function hma_check_for_pages() {
-
-	hma_check_for_submit( 'lost_password' );
-
-}
-add_action( 'init', 'hma_check_for_pages' );
-
-/**
- * Output the lost password form fields
- *
- * @access public
- * @return null
- */
-function hma_add_lost_password_inputs() {
-	hma_add_form_fields( 'lost_password' );
-	echo '<input type="hidden" name="referer" value="' . ( !empty( $_REQUEST['referer'] ) ? $_REQUEST['referer'] : wp_get_referer()) . '" />' . "\n";
-}
-add_action( 'hma_lost_password_form', 'hma_add_lost_password_inputs' );
-
-/**
- * Output the edit profile form fields
- *
- * @return null
- */
-function hma_add_profile_inputs() {
-	hma_add_form_fields( 'profile' );
-}
-add_action( 'hma_profile_form', 'hma_add_profile_inputs' );
-
-/**
- * Output the hidden form submissions tracking field and
- * optionally the wp_nonce
- *
- * @param string $page
- * @param bool $add_nonce. (default: true)
- * @return null
- */
-function hma_add_form_fields( $page, $add_nonce = true ) {
-
-	echo '<input type="hidden" name="hma_' . $page . '_submitted" value="' . $page . '" />' . "\n";
-
-	if ( $add_nonce )
-		wp_nonce_field( 'hma_' . $page . '_submitted' );
-
-}
-
-/**
- * Checks POST data for a given page name
- *
- * @param string $page name
- */
-function hma_check_for_submit( $page ) {
-
-	if ( empty( $_POST['hma_' . $page . '_submitted'] ) )
-		return;
-
-	do_action( 'hma_' . $page . '_submitted' );
-
-}
 
 /**
  * Process the password reset form submission
- *
+ * @todo make rewrite rule
  * @return null
  */
 function hma_check_for_password_reset() {
@@ -202,11 +13,11 @@ function hma_check_for_password_reset() {
 
 		if ( !is_wp_error( $status ) ) {
 			do_action( 'hma_lost_password_reset_success' );
-			wp_redirect( add_query_arg( 'message', '303', get_bloginfo('lost_password_url', 'display') ) );
+			wp_redirect( add_query_arg( 'message', '303', hma_get_lost_password_url() ) );
 
 		} else {
 			do_action( 'hma_lost_password_reset_error', $status );
-			wp_redirect( add_query_arg( 'message', $status->get_error_code(), get_bloginfo('lost_password_url', 'display') ) );
+			wp_redirect( add_query_arg( 'message', $status->get_error_code(), hma_get_lost_password_url() ) );
 
 		}
 
@@ -425,18 +236,6 @@ function hma_login_url_hook( $login_url, $redirect ) {
 
 }
 add_filter('login_url', 'hma_login_url_hook', 10, 2 );
-
-/**
- * Returns the logout url
- *
- * @param string $logout_url
- * @param string $redirect
- * @return string - new url
- */
-function hma_logout_url_hook( $logout_url, $redirect ) {
-	return hma_get_logout_url( $redirect );
-}
-add_filter('logout_url', 'hma_logout_url_hook', 10, 2 );
 
 /**
  * Override the author url with our own user urls.
