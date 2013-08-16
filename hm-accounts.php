@@ -15,7 +15,6 @@ include_once( 'hm-accounts.rewrite.php' );
 include_once( 'hm-accounts.hooks.php' );
 include_once( 'hm-accounts.actions.php' );
 include_once( 'hm-accounts.bloginfo.php' );
-include_once( 'hm-accounts.sso.php' );
 include_once( 'hm-accounts.admin.edit-profile.php' );
 
 /**
@@ -25,9 +24,6 @@ include_once( 'hm-accounts.admin.edit-profile.php' );
  * @return null
  */
 function hma_init() {
-	
-	if ( function_exists( 'fbc_get_fbconnect_user' ) )
-		include_once( 'hm-accounts.sso.facebook.php' );
 
 	foreach( hma_default_profile_fields() as $field )
 		hma_register_profile_field( $field );
