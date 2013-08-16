@@ -1,4 +1,128 @@
 <?php
+/**
+ * Controller to catch the registration submitting
+ */
+add_action( 'init', function() {
+
+	hm_add_rewrite_rule( array(
+		'rewrite' => '^register/submit/?$',
+		'request_callback' => function() {
+
+			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
+
+			$hm_accounts = HM_Accounts::get_instance( $type );
+			 
+			$details = array(
+
+				'user_login' 	=> ! empty( $_POST['user_login'] ) ? sanitize_text_field( $_POST['user_login'] ) : '',
+				'user_email'	=> ! empty( $_POST['user_email'] ) ? sanitize_email( $_POST['user_email'] ) : '',
+				'use_password' 	=> true,
+				'user_pass'		=> ! empty( $_POST['user_pass'] ) ? (string) $_POST['user_pass'] : '',
+				'user_pass2'	=> ! empty( $_POST['user_pass_1'] ) ? (string) $_POST['user_pass_1'] : '',
+				'unique_email'	=> true,
+				'do_login' 		=> true
+			);
+
+			// also pass any registered profile fields
+			foreach ( hma_get_profile_fields() as $field ) {
+				if ( isset( $_POST[$field] ) )
+					$details[$field] = $_POST[$field];
+			}
+
+			$details = apply_filters( 'hma_register_args', $details );
+
+			$hm_accounts->set_registration_data( $details );
+
+			$hm_return = $hm_accounts->register();
+
+			if ( is_wp_error( $hm_return ) ) {
+
+				do_action( 'hma_register_submitted_error', $hm_return );
+				hm_error_message( $hm_return->get_error_message() ? $hm_return->get_error_message() : 'Something went wrong, error code: ' . $hm_return->get_error_code(), 'register' );
+				wp_redirect( wp_get_referer() );
+				exit;
+
+			} else {
+
+				do_action( 'hma_register_completed', $hm_return );
+
+				if ( ! empty( $_POST['redirect_to'] ) )
+					$redirect = esc_url_raw( $_POST['redirect_to'] );
+
+				elseif ( ! empty( $_POST['referer'] ) )
+					$redirect = esc_url_raw( $_POST['referer'] );
+
+				else
+					$redirect = get_bloginfo( 'edit_profile_url', 'display' );
+
+				wp_redirect( $redirect );
+				exit;
+			}
+		}
+	) );
+} );
+
+/**
+ * Controller to catch the registration submitting
+ */
+add_action( 'init', function() {
+
+	hm_add_rewrite_rule( array(
+		'rewrite' => '^login/submit/?$',
+		'request_callback' => function() {
+
+			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
+
+			$hm_accounts = HM_Accounts::get_instance( $type );
+
+			// normal login form authentication
+			if ( isset( $_POST['user_pass'] ) ) {
+
+				$details = array( 
+					'password' => $_POST['user_pass'], 
+					'username' => sanitize_text_field( $_POST['user_login'] ),
+					'remember' => ! empty( $_POST['remember'] ) ? true : false
+				);
+
+			} else {
+				$details = array();	
+			}
+			
+			$details = apply_filters( 'hma_login_args', $details );
+
+			$status = $hm_accounts->login( $details );
+
+			if ( is_wp_error( $status ) )
+				hm_error_message( 
+					apply_filters( 
+						'hma_login_error_message', 
+						$status->get_error_message() ? $status->get_error_message() : 'Something went wrong, error code: ' . $status->get_error_code(), 
+						$status
+					), 
+					'login' 
+				);
+
+
+			hma_do_login_redirect( $status, true );
+		}
+	) );
+} );
+
+/**
+ * Controller to catch the registration submitting
+ */
+add_action( 'init', function() {
+
+	hm_add_rewrite_rule( array(
+		'rewrite' => '^login/lost-password/submit/?$',
+		'request_callback' => function() {
+
+			$success = hma_lost_password( sanitize_email( $_POST['user_email'] ) );
+
+			wp_redirect( wp_get_referer() );
+		}
+	) );
+} );
 
 /**
  * Check for form submissions
@@ -7,11 +131,7 @@
  */
 function hma_check_for_pages() {
 
-	hma_check_for_submit( 'register' );
-	hma_check_for_submit( 'sso_register' );
-	hma_check_for_submit( 'login' );
 	hma_check_for_submit( 'lost_password' );
-	hma_check_for_submit( 'profile' );
 
 }
 add_action( 'init', 'hma_check_for_pages' );

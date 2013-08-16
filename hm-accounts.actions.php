@@ -218,4 +218,3 @@ function hma_profile_submitted() {
 	}
 
 }
-add_action( 'hma_profile_submitted', 'hma_profile_submitted' );

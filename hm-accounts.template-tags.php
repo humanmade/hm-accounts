@@ -272,15 +272,6 @@ function hma_is_current_user_author() {
 	
 }
 
-/**
- * Checks if a given user is a facebook user
- *
- * @param object $user
- * @return bool
- */
-function hma_is_facebook_user( $user ) {
-	return (bool) $user->fbuid;
-}
 
 /**
  * Return the users profile url
