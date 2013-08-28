@@ -164,16 +164,16 @@ function hma_profile_submitted() {
 	} else {
 
 	if ( ! empty( $_POST['redirect_to'] ) )
-	    $redirect = esc_url_raw( $_POST['redirect_to'] );
+		$redirect = esc_url_raw( $_POST['redirect_to'] );
 
 	elseif ( ! empty( $_POST['referer'] ) )
-	    $redirect = esc_url_raw( $_POST['referer'] );
+		$redirect = esc_url_raw( $_POST['referer'] );
 
 	elseif ( wp_get_referer() )
-	    $redirect = wp_get_referer();
+		$redirect = wp_get_referer();
 
 	else
-	    $redirect = hma_get_edit_profile_url();
+		$redirect = hma_get_edit_profile_url();
 
 	do_action( 'hma_update_user_profile_completed', $redirect );
 
@@ -183,3 +183,35 @@ function hma_profile_submitted() {
 	}
 
 }
+
+/**
+ * Log the user out
+ *
+ * @return null
+ */
+function hma_logout() {
+
+	if ( isset( $_GET['action'] ) && $_GET['action'] == 'logout' ) :
+
+		// Fire the WordPress logout
+		wp_logout();
+
+		if ( ! empty( $_GET['redirect_to'] ) ) {
+			$redirect = esc_url_raw( $_GET['redirect_to'] );
+
+		} else {
+			$redirect = remove_query_arg( 'action', wp_get_referer() );
+
+			// Redirect to homepage if logged out from wp-admin
+			if ( strpos( $redirect, '/wp-admin' ) )
+				$redirect = get_bloginfo( 'url' );
+
+		}
+
+		wp_redirect( $redirect );
+		exit;
+
+	endif;
+
+}
+add_action( 'init', 'hma_logout', 9 );
