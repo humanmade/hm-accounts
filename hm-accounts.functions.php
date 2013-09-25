@@ -222,7 +222,6 @@ function hma_update_user_info( $info ) {
 		$upload_dir = wp_upload_dir();
 
 		$info['user_avatar_path'] = str_replace( $upload_dir['basedir'], '', $file['file'] );
-		$info['user_avatar_option'] = 'uploaded';
 		unset( $info['user_avatar'] );
 
 	}
@@ -291,23 +290,6 @@ function hma_parse_user( $user = null ) {
 function hma_get_avatar( $user = null, $width, $height, $crop = true, $try_normal = true ) {
 
 	$user = hma_parse_user( $user );
-
-	// Try to use avatar option classes
-	if ( !empty( $user->user_avatar_option ) ) {
-
-		$hma_avatar_option = hma_get_avatar_option( $user->user_avatar_option );
-		$hma_avatar_option->set_user( $user );
-		
-		if ( is_a( $hma_avatar_option, 'hma_SSO_Avatar_Option' ) ) {
-
-			$avatar = $hma_avatar_option->get_avatar( "width=$width&height=$height&crop=$crop" );
-
-			if ( $avatar )
-				return $avatar;
-
-		}
-
-	}
 
 	if ( $avatar = hma_get_avatar_upload( $user, $width, $height, $crop ) ) {
 		return $avatar;

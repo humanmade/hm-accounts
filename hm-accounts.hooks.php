@@ -91,62 +91,10 @@ function hma_admin_add_avatar( $user ) { ?>
 
 		<table class="form-table">
 
-			<?php $avatar_options = hma_get_avatar_options();
-			$current_avatar_service = get_user_meta( $user->ID, 'user_avatar_option', true );
-
-		if ( $current_avatar_service ) :  ?>
-
-			<tr id="hma_user_avatar_select_row">
-
-				<th><label for="hma_user_avatar_file">Select which avatar is used</label></th>
-
-	    		<td>
-					<?php foreach ( $avatar_options as $avatar_option ) {
-
-			    		$avatar_option->set_user( $user );
-
-						if ( ! $avatar_option->get_avatar( 60 ) )
-							continue; ?>
-
-		    		<div class="hma_avatars">
-
-		    			<img src="<?php echo $avatar_option->get_avatar( 60 ); ?>" height="60" width="60" alt="Avatar <?php echo $avatar_option->service_name; ?>" class="avatar" />
-
-		    			<br/>
-
-						<?php // TODO for attribute? ?>
-
-		    			<label>
-
-							<input type="radio" name="hma_user_avatar_service" value="<?php echo $avatar_option->service_id; ?>"
-
-		    					<?php if ( ! empty( $current_avatar_service ) )
-			    					checked( $avatar_option->service_id, $current_avatar_service );
-			    				
-			    				else
-			    					checked( $avatar_option->service_id, 'gravatar' );  ?>
-			    			/>
-
-			    			<?php echo $avatar_option->service_name; ?>
-
-		    			</label>
-
-		    		</div>
-
-	    		<?php } ?>
-
-		    	</td>
-
-			</tr>
-
-		<?php else : ?>
-
 			<tr id="hma_user_avatar_current_row">
 				<th><label for="hma_user_avatar_file">Current Avatar</label></th>
 	    		<td><?php echo get_avatar( $user->ID, 60 ); ?></td>
 	    	</tr>
-
-		<?php endif; ?>
 
 			<tr id="hma_user_avatar_file_row">
 
@@ -177,9 +125,6 @@ function hma_admin_add_avatar_save( $user_id ) {
 	if ( ! current_user_can( 'edit_user', $user_id ) )
 		return false;
 
-	if ( isset( $_POST['hma_user_avatar_service'] )  )
-		update_user_meta( $user_id, 'user_avatar_option', sanitize_key( $_POST['hma_user_avatar_service'] ) );
-
 	if ( isset( $_FILES['hma_user_avatar_file'] ) && $_FILES['hma_user_avatar_file'] != '' ) {
 
 		$file = wp_handle_upload( $_FILES['hma_user_avatar_file'], array( 'test_form' => false ) );
@@ -191,7 +136,6 @@ function hma_admin_add_avatar_save( $user_id ) {
 
 		$path = str_replace( $upload_dir['basedir'] , '', $file['file'] );
 		update_user_meta( $user_id, 'user_avatar_path', $path );
-		update_user_meta( $user_id, 'user_avatar_option', 'uploaded' );
 
 	}
 
