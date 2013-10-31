@@ -369,20 +369,9 @@ function hma_get_avatar_upload_path( $user ) {
 function hma_override_reset_password($key, $login) {
 	global $wpdb;
 
-	$key = preg_replace('/[^a-z0-9]/i', '', $key);
+	$user = check_password_reset_key( $key, $login );
 
-	if ( empty( $key ) || !is_string( $key ) ) {
-		hm_error_message( 'The key you provided was invalid', 'lost-password' );
-		return new WP_Error('invalid_key', __('Invalid key'));
-	}
-
-	if ( empty($login) || !is_string($login) ){
-		hm_error_message( 'The key you provided was invalid', 'lost-password' );
-		return new WP_Error('invalid_key', __('Invalid key'));
-	}
-
-	$user = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->users WHERE user_activation_key = %s AND user_login = %s", $key, $login));
-	if ( empty( $user ) ){
+	if ( is_wp_error( $user ) ) {
 		hm_error_message( 'The key you provided was invalid', 'lost-password' );
 		return new WP_Error('invalid_key', __('Invalid key'));
 	}
