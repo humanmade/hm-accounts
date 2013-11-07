@@ -94,7 +94,7 @@ class HMA_Uploaded_Avatar_Option extends hma_SSO_Avatar_Option {
 		$this->service_id = "uploaded";		
 	}
 	
-	function get_avatar( $size ) {
+	function get_avatar( $size = NULL ) {
 		
 		if ( ! hma_get_avatar_upload_path( $this->user ) )
 			return null;
@@ -114,7 +114,7 @@ class HMA_Gravatar_Avatar_Option extends HMA_SSO_Avatar_Option {
 		$this->service_id = "gravatar";
 	}
 	
-	function get_avatar( $size ) {
+	function get_avatar( $size = NULL ) {
 		$size = wp_parse_args( $size );
 		return $this->avatar_url = add_query_arg( 's', $size['width'], 'http://www.gravatar.com/avatar/' . md5( strtolower( $this->user->user_email ) ) );
 	}
