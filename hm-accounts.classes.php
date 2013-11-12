@@ -95,7 +95,7 @@ class HM_Accounts {
 			}
 		}
 
-		$user = get_userdata( $user_id );
+		$user = get_user_by( 'id', $user_id );
 
 		// Send Notifcation email if specified
 		if ( $args['send_email'] )
