@@ -95,7 +95,7 @@ class HM_Accounts {
 			}
 		}
 
-		$user = get_userdata( $user_id );
+		$user = get_user_by( 'id', $user_id );
 
 		// Send Notifcation email if specified
 		if ( $args['send_email'] )
@@ -105,7 +105,7 @@ class HM_Accounts {
 		if ( ( $args['do_login'] == true ) && ! empty( $user->ID ) ) :
 
 			wp_signon( array( 'user_login' => $user->user_login, 'user_password' => $args['user_pass'] ) );
-			do_action( 'wp_login', $user->user_login );
+			do_action( 'wp_login', $user->user_login, $user );
 
 			wp_set_current_user( $user->ID );
 
