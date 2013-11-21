@@ -43,7 +43,7 @@ function hma_email_registration_success( $user, $user_pass ) {
  */
 function hma_lost_password( $email ) {
 
-	if ( !get_user_by_email( $email ) && !get_userdatabylogin( $email ) ) {
+	if ( ! get_user_by( 'email', $email ) && ! get_user_by( 'login', $email ) ) {
 		hm_error_message( apply_filters( 'hma_login_unrocognized_email_error_message', 'The email address you entered was not recognised'), 'lost-password' );
 		return new WP_Error('unrecognized-email');
 	}
@@ -84,7 +84,7 @@ function hma_lost_password( $email ) {
  */
 function hma_lost_password_email( $message, $key ) {
 
-	$user = get_user_by_email( sanitize_email( $_POST['user_login'] ) ); // field is called user_login though wil contain an email address
+	$user = get_user_by( 'email', sanitize_email( $_POST['user_login'] ) ); // field is called user_login though wil contain an email address
 	$reset_url = get_bloginfo( 'lost_password_url', 'display' ) . '?action=rp&key=' . $key . '&login=' . $user->user_login;
 
 	if ( file_exists( $file = apply_filters( 'hma_lost_password_email_path', get_stylesheet_directory() . '/email.lost-password.php' ) ) ) {
@@ -268,7 +268,7 @@ function hma_parse_user( $user = null ) {
 
 	if ( is_string( $user ) ) {
 
-		if ( strpos( $user, "@" ) > 0 && $user = get_user_by_email( $user ) )
+		if ( strpos( $user, "@" ) > 0 && $user = get_user_by( 'email', $user ) )
 			return $user;
 
 		return get_userdatabylogin( $user );
