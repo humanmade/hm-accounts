@@ -34,8 +34,6 @@ class HMA_SSO_Facebook extends HMA_SSO_Provider {
 		$this->supports_publishing = true;
 		$this->set_user( wp_get_current_user() );
 		
-		require_once( 'facebook-sdk/src/facebook.php' );
-		
 		$this->client = new Facebook(array(
 		  'appId'  => $this->app_id,
 		  'secret' => $this->application_secret,
