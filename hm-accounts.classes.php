@@ -213,7 +213,7 @@ class HM_Accounts {
 			wp_set_current_user( $user->ID );
 		}
 
-		do_action( 'wp_login', $user->user_login );
+		do_action( 'wp_login', $user->user_login, $user );
 		do_action( 'hma_log_user_in', $user);
 
 		return true;
