@@ -18,19 +18,19 @@ function hma_email_registration_success( $user, $user_pass ) {
 		include( $file );
 		$message = ob_get_contents();
 		ob_end_clean();
-		
+
 		add_filter( 'wp_mail_content_type', 'wp_mail_content_type_html' );
-	
+
 	} else {
 
 		wp_new_user_notification( $user->ID, $user_pass );
 		return;
 
 	}
-	
+
 	add_filter( 'wp_mail_from', 'hm_wp_mail_from' );
 	add_filter( 'wp_mail_from_name', 'hm_wp_mail_from_name'  );
-	
+
 	return wp_mail( $user->user_email, apply_filters( 'hma_register_email_subject', 'New account registered for ' . get_bloginfo() ), $message, 'content-type=text/html' );
 
 }
@@ -69,7 +69,7 @@ function hma_lost_password( $email ) {
 
 	if ( $errors->get_error_code() == 'no_password_reset' )
 		hm_error_message( 'Sorry, this user\'s password cannot be changed', 'lost-password' );
-		
+
 	hm_error_message( 'There was an unknown error', 'lost-password' );
 
 	return new WP_Error('unknown');
@@ -92,7 +92,7 @@ function hma_lost_password_email( $message, $key ) {
 		include( $file );
 		$message = ob_get_contents();
 		ob_end_clean();
-		
+
 		add_filter( 'wp_mail_content_type', 'wp_mail_content_type_html' );
 	}
 
@@ -143,7 +143,7 @@ function hma_reset_password_email( $message, $new_pass ) {
 		include( $file );
 		$message = ob_get_contents();
 		ob_end_clean();
-		
+
 		add_filter( 'wp_mail_content_type', 'wp_mail_content_type_html' );
 	}
 
@@ -292,23 +292,6 @@ function hma_get_avatar( $user = null, $width, $height, $crop = true, $try_norma
 
 	$user = hma_parse_user( $user );
 
-	// Try to use avatar option classes
-	if ( !empty( $user->user_avatar_option ) ) {
-
-		$hma_avatar_option = hma_get_avatar_option( $user->user_avatar_option );
-		$hma_avatar_option->set_user( $user );
-		
-		if ( is_a( $hma_avatar_option, 'hma_SSO_Avatar_Option' ) ) {
-
-			$avatar = $hma_avatar_option->get_avatar( "width=$width&height=$height&crop=$crop" );
-
-			if ( $avatar )
-				return $avatar;
-
-		}
-
-	}
-
 	if ( $avatar = hma_get_avatar_upload( $user, $width, $height, $crop ) ) {
 		return $avatar;
 
@@ -337,7 +320,7 @@ function hma_get_avatar_upload( $user, $width, $height, $crop ) {
 
 	if ( $path = hma_get_avatar_upload_path( $user ) )
 		return wpthumb( $path, $width, $height, $crop );
-		
+
 	return '';
 
 }
@@ -352,7 +335,7 @@ function hma_get_avatar_upload_path( $user ) {
 	// backwards compatibility
 	if ( strpos( $path, ABSPATH ) === 0 )
 		return $path;
-	
+
 	$upload_dir = wp_upload_dir();
 
 	return $upload_dir['basedir'] . $path;
@@ -458,9 +441,9 @@ function hma_get_profile_fields() {
 }
 
 function hma_custom_profile_fields() {
-	
+
 	return array_diff( hma_get_profile_fields(), hma_default_profile_fields() );
-	
+
 }
 
 /**
