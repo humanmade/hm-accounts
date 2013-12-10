@@ -15,7 +15,7 @@ function hma_do_login_redirect( $return, $do_redirect_on_error = false ) {
 		if ( ! empty( $_REQUEST['redirect_to'] ) )
 			$redirect = add_query_arg( 'redirect_to', esc_url_raw( $_REQUEST['redirect_to'] ), wp_get_referer() );
 		else
-			$redirect = wp_get_referer();
+			$redirect = ( wp_get_referer() ) ? wp_get_referer() : hma_get_login_url();
 
 		if ( $do_redirect_on_error ) {
 			wp_redirect( add_query_arg( 'errored', time(), $redirect ), 303 );
