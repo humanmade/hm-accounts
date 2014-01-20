@@ -11,17 +11,17 @@ function hma_do_login_redirect( $return, $do_redirect_on_error = false ) {
 	if ( is_wp_error( $return ) ) {
 
 		do_action( 'hma_login_submitted_error', $return );
-		
+
 		if ( ! empty( $_REQUEST['redirect_to'] ) )
 			$redirect = add_query_arg( 'redirect_to', esc_url_raw( $_REQUEST['redirect_to'] ), wp_get_referer() );
 		else
-			$redirect = wp_get_referer();
+			$redirect = ( wp_get_referer() ) ? wp_get_referer() : hma_get_login_url();
 
 		if ( $do_redirect_on_error ) {
 			wp_redirect( add_query_arg( 'errored', time(), $redirect ), 303 );
 			exit;
 		}
-		
+
 		return;
 
 	} else {
@@ -91,10 +91,10 @@ function hma_profile_submitted() {
 		hm_error_message( 'The passwords you entered do not match', 'update-user' );
 		return;
 	}
-	
+
 	if ( ! empty( $_POST['user_pass'] ) )
 		$user_data['user_pass'] = $_POST['user_pass'];
-	
+
 	else
 		unset( $user_data['user_pass'] );
 
@@ -139,25 +139,8 @@ function hma_profile_submitted() {
 
 	$success = hma_update_user_info( $user_data );
 
-	// Unlink any SSO providers
-	if ( !is_wp_error( $success ) && !empty( $_POST['unlink_sso_providers'] ) && array_filter( (array) $_POST['unlink_sso_providers'] ) ) {
-
-		if ( empty( $user_data['user_pass'] ) ) {
-			hm_error_message( 'The social network(s) could not be unlinked because you did not enter your password', 'update-user' );
-
-		} else {
-
-			foreach( array_filter( (array) $_POST['unlink_sso_providers'] ) as $sso_provider_id ) {
-
-				$sso_provider = hma_get_sso_provider( sanitize_key( $sso_provider_id ) );
-				$sso_provider->unlink();
-
-			}
-		}
-	}
-
 	if ( is_wp_error( $success ) ) {
-		
+
 		do_action( 'hma_update_user_profile_error', $success );
 		return;
 

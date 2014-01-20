@@ -18,19 +18,19 @@ function hma_email_registration_success( $user, $user_pass ) {
 		include( $file );
 		$message = ob_get_contents();
 		ob_end_clean();
-		
+
 		add_filter( 'wp_mail_content_type', 'wp_mail_content_type_html' );
-	
+
 	} else {
 
 		wp_new_user_notification( $user->ID, $user_pass );
 		return;
 
 	}
-	
+
 	add_filter( 'wp_mail_from', 'hm_wp_mail_from' );
 	add_filter( 'wp_mail_from_name', 'hm_wp_mail_from_name'  );
-	
+
 	return wp_mail( $user->user_email, apply_filters( 'hma_register_email_subject', 'New account registered for ' . get_bloginfo() ), $message, 'content-type=text/html' );
 
 }
@@ -43,7 +43,7 @@ function hma_email_registration_success( $user, $user_pass ) {
  */
 function hma_lost_password( $email ) {
 
-	if ( !get_user_by_email( $email ) && !get_userdatabylogin( $email ) ) {
+	if ( ! get_user_by( 'email', $email ) && ! get_user_by( 'login', $email ) ) {
 		hm_error_message( apply_filters( 'hma_login_unrocognized_email_error_message', 'The email address you entered was not recognised'), 'lost-password' );
 		return new WP_Error('unrecognized-email');
 	}
@@ -69,7 +69,7 @@ function hma_lost_password( $email ) {
 
 	if ( $errors->get_error_code() == 'no_password_reset' )
 		hm_error_message( 'Sorry, this user\'s password cannot be changed', 'lost-password' );
-		
+
 	hm_error_message( 'There was an unknown error', 'lost-password' );
 
 	return new WP_Error('unknown');
@@ -84,7 +84,7 @@ function hma_lost_password( $email ) {
  */
 function hma_lost_password_email( $message, $key ) {
 
-	$user = get_user_by_email( sanitize_email( $_POST['user_login'] ) ); // field is called user_login though wil contain an email address
+	$user = get_user_by( 'email', sanitize_email( $_POST['user_login'] ) ); // field is called user_login though wil contain an email address
 	$reset_url = hma_get_lost_password_url() . '?action=rp&key=' . $key . '&login=' . $user->user_login;
 
 	if ( file_exists( $file = apply_filters( 'hma_lost_password_email_path', get_stylesheet_directory() . '/email.lost-password.php' ) ) ) {
@@ -92,7 +92,7 @@ function hma_lost_password_email( $message, $key ) {
 		include( $file );
 		$message = ob_get_contents();
 		ob_end_clean();
-		
+
 		add_filter( 'wp_mail_content_type', 'wp_mail_content_type_html' );
 	}
 
@@ -143,7 +143,7 @@ function hma_reset_password_email( $message, $new_pass ) {
 		include( $file );
 		$message = ob_get_contents();
 		ob_end_clean();
-		
+
 		add_filter( 'wp_mail_content_type', 'wp_mail_content_type_html' );
 	}
 
@@ -222,6 +222,7 @@ function hma_update_user_info( $info ) {
 		$upload_dir = wp_upload_dir();
 
 		$info['user_avatar_path'] = str_replace( $upload_dir['basedir'], '', $file['file'] );
+		$info['user_avatar_option'] = 'uploaded';
 		unset( $info['user_avatar'] );
 
 	}
@@ -267,7 +268,7 @@ function hma_parse_user( $user = null ) {
 
 	if ( is_string( $user ) ) {
 
-		if ( strpos( $user, "@" ) > 0 && $user = get_user_by_email( $user ) )
+		if ( strpos( $user, "@" ) > 0 && $user = get_user_by( 'email', $user ) )
 			return $user;
 
 		return get_userdatabylogin( $user );
@@ -319,7 +320,7 @@ function hma_get_avatar_upload( $user, $width, $height, $crop ) {
 
 	if ( $path = hma_get_avatar_upload_path( $user ) )
 		return wpthumb( $path, $width, $height, $crop );
-		
+
 	return '';
 
 }
@@ -334,7 +335,7 @@ function hma_get_avatar_upload_path( $user ) {
 	// backwards compatibility
 	if ( strpos( $path, ABSPATH ) === 0 )
 		return $path;
-	
+
 	$upload_dir = wp_upload_dir();
 
 	return $upload_dir['basedir'] . $path;
@@ -351,20 +352,9 @@ function hma_get_avatar_upload_path( $user ) {
 function hma_override_reset_password($key, $login) {
 	global $wpdb;
 
-	$key = preg_replace('/[^a-z0-9]/i', '', $key);
+	$user = check_password_reset_key( $key, $login );
 
-	if ( empty( $key ) || !is_string( $key ) ) {
-		hm_error_message( 'The key you provided was invalid', 'lost-password' );
-		return new WP_Error('invalid_key', __('Invalid key'));
-	}
-
-	if ( empty($login) || !is_string($login) ){
-		hm_error_message( 'The key you provided was invalid', 'lost-password' );
-		return new WP_Error('invalid_key', __('Invalid key'));
-	}
-
-	$user = $wpdb->get_row($wpdb->prepare("SELECT * FROM $wpdb->users WHERE user_activation_key = %s AND user_login = %s", $key, $login));
-	if ( empty( $user ) ){
+	if ( is_wp_error( $user ) ) {
 		hm_error_message( 'The key you provided was invalid', 'lost-password' );
 		return new WP_Error('invalid_key', __('Invalid key'));
 	}
@@ -451,9 +441,9 @@ function hma_get_profile_fields() {
 }
 
 function hma_custom_profile_fields() {
-	
+
 	return array_diff( hma_get_profile_fields(), hma_default_profile_fields() );
-	
+
 }
 
 /**
