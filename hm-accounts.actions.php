@@ -70,6 +70,8 @@ function hm_parse_redirect( $redirect ) {
  */
 function hma_profile_submitted() {
 
+	check_admin_referer( 'hma-update-profile' );
+
 	$current_user = wp_get_current_user();
 
 	// check the user is logged in
