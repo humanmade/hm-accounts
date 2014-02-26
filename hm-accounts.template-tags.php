@@ -131,7 +131,7 @@ function hma_get_profile_user() {
  */
 function hma_get_login_url( $redirect = null, $message = null ) {
 
-	$url = get_bloginfo( 'login_url', 'display' );
+	$url = home_url( trailingslashit( hma_get_login_rewrite_slug() ) );
 
 	if ( $redirect )
 		$url = add_query_arg( 'redirect_to', urlencode( $redirect ), $url );
@@ -151,7 +151,7 @@ function hma_get_login_url( $redirect = null, $message = null ) {
  */
 function hma_get_logout_url( $redirect = null ) {
 
-	$url = get_bloginfo( 'logout_url', 'display' );
+	$url = add_query_arg( 'action', 'logout', hma_get_login_url() );
 
 	if ( $redirect )
 		$url = add_query_arg( 'redirect_to', urlencode( $redirect ), $url );
@@ -165,7 +165,7 @@ function hma_get_logout_url( $redirect = null ) {
  * @return string
  */
 function hma_get_lost_password_url() {
-	return get_bloginfo( 'lost_password_url', 'display' );
+	return apply_filters( 'hma_lost_password_url', home_url( trailingslashit( hma_get_lost_password_rewrite_slug() ) ) );
 }
 
 /**
@@ -175,7 +175,17 @@ function hma_get_lost_password_url() {
  * @return null
  */
 function hma_get_register_url() {
-	return get_bloginfo( 'register_url', 'display' );
+	return apply_filters( 'hma_register_url',  home_url( trailingslashit( hma_get_register_rewrite_slug() ) ) );
+}
+
+/**
+ * Return the register page url
+ *
+ * @access public
+ * @return null
+ */
+function hma_get_profile_url() {
+	return apply_filters( 'hma_edit_profile_url', home_url( trailingslashit( hma_get_edit_profile_rewrite_slug() ) ) );
 }
 
 /**
@@ -272,15 +282,6 @@ function hma_is_current_user_author() {
 	
 }
 
-/**
- * Checks if a given user is a facebook user
- *
- * @param object $user
- * @return bool
- */
-function hma_is_facebook_user( $user ) {
-	return (bool) $user->fbuid;
-}
 
 /**
  * Return the users profile url

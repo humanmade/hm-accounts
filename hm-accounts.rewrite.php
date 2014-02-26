@@ -37,15 +37,125 @@ function hma_rewrite_rules() {
 	if ( file_exists( $profile = hma_get_user_profile_template() ) )
 		hm_add_rewrite_rule( '^' . hma_get_user_profile_rewrite_slug() . '/([^\/]*)(/page/([\d]*))?/?$', 'author_name=$matches[1]&paged=$matches[3]', $profile, array( 'post_query_properties' => array( 'is_home' => false, 'is_user_profile' => true ) ) );
 
-	// Single Sign On
-	hm_add_rewrite_rule( '^login/sso/twitter/authenticate/?$', 'is_login=1&is_twitter_popup=1', null, array( 'post_query_properties' => array( 'is_login' => true ) ) );
-	hm_add_rewrite_rule( '^login/sso/twitter/authenticate/callback/?$', 'is_login=1&is_twitter_popup=1', null, array( 'post_query_properties' => array( 'is_login' => true ) ) );
-	hm_add_rewrite_rule( '^login/sso/authenticated/?$', 'is_login=1', null, array( 'post_query_properties' => array( 'is_login' => true ) ) );
-	hm_add_rewrite_rule( '^register/sso/authenticated/?$', 'is_register=1', null, array( 'post_query_properties' => array( 'is_register' => true ) ) );
+	/**
+ 	 * Controller to catch the registration submitting
+ 	 */
+	hm_add_rewrite_rule( array(
+		'rewrite' => '^register/submit/?$',
+		'request_callback' => function() {
 
-	hm_add_rewrite_rule( '^profile/sso/authenticated/?$', 'is_login=1' );
-	hm_add_rewrite_rule( '^profile/sso/deauthenticate/?$', 'is_login=1' );
+			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
 
+			$hm_accounts = HM_Accounts::get_instance( $type );
+			 
+			$details = array(
+
+				'user_login' 	=> ! empty( $_POST['user_login'] ) ? sanitize_text_field( $_POST['user_login'] ) : '',
+				'user_email'	=> ! empty( $_POST['user_email'] ) ? sanitize_email( $_POST['user_email'] ) : '',
+				'use_password' 	=> true,
+				'user_pass'		=> ! empty( $_POST['user_pass'] ) ? (string) $_POST['user_pass'] : '',
+				'user_pass2'	=> ! empty( $_POST['user_pass_1'] ) ? (string) $_POST['user_pass_1'] : '',
+				'unique_email'	=> true,
+				'do_login' 		=> true
+			);
+
+			// also pass any registered profile fields
+			foreach ( hma_get_profile_fields() as $field ) {
+				if ( isset( $_POST[$field] ) )
+					$details[$field] = $_POST[$field];
+			}
+
+			$details = apply_filters( 'hma_register_args', $details );
+
+			$hm_accounts->set_registration_data( $details );
+
+			$hm_return = $hm_accounts->register();
+
+			if ( is_wp_error( $hm_return ) ) {
+
+				do_action( 'hma_register_submitted_error', $hm_return );
+				hm_error_message( $hm_return->get_error_message() ? $hm_return->get_error_message() : 'Something went wrong, error code: ' . $hm_return->get_error_code(), 'register' );
+				wp_redirect( wp_get_referer() );
+				exit;
+
+			} else {
+
+				do_action( 'hma_register_completed', $hm_return );
+
+				if ( ! empty( $_POST['redirect_to'] ) )
+					$redirect = esc_url_raw( $_POST['redirect_to'] );
+
+				elseif ( ! empty( $_POST['referer'] ) )
+					$redirect = esc_url_raw( $_POST['referer'] );
+
+				else
+					$redirect = hma_get_edit_profile_url();
+
+				wp_redirect( $redirect );
+				exit;
+			}
+		}
+	) );
+
+	/**
+	 * Controller to catch the registration submitting
+	 */
+	hm_add_rewrite_rule( array(
+		'rewrite' => '^login/submit/?$',
+		'request_callback' => function() {
+
+			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
+
+			$hm_accounts = HM_Accounts::get_instance( $type );
+
+			// normal login form authentication
+			if ( isset( $_POST['user_pass'] ) ) {
+
+				$details = array( 
+					'password' => $_POST['user_pass'], 
+					'username' => sanitize_text_field( $_POST['user_login'] ),
+					'remember' => ! empty( $_POST['remember'] ) ? true : false
+				);
+
+			} else {
+				$details = array();	
+			}
+			
+			$details = apply_filters( 'hma_login_args', $details );
+
+			$status = $hm_accounts->login( $details );
+
+			if ( is_wp_error( $status ) )
+				hm_error_message( 
+					apply_filters( 
+						'hma_login_error_message', 
+						$status->get_error_message() ? $status->get_error_message() : 'Something went wrong, error code: ' . $status->get_error_code(), 
+						$status
+					), 
+					'login' 
+				);
+
+
+			hma_do_login_redirect( $status, true );
+		}
+	) );
+
+	/**
+	 * Controller to catch the registration submitting
+  	 */
+	hm_add_rewrite_rule( array(
+		'rewrite' => '^login/lost-password/submit/?$',
+		'request_callback' => function() {
+
+			$success = hma_lost_password( sanitize_email( $_POST['user_email'] ) );
+
+			wp_redirect( wp_get_referer() );
+		}
+	) );
+
+	/**
+	 * Controller to catch the edit profile submit
+	 */
 	hm_add_rewrite_rule( array(
 		'regex' => '^' . hma_get_edit_profile_rewrite_slug() . '/submit/?$', 
 		'request_callback' => function() {
@@ -53,9 +163,6 @@ function hma_rewrite_rules() {
 			exit;
 		}
 	));
-
-	do_action( 'hma_added_rewrite_rules' );
-
 }
 add_action( 'init', 'hma_rewrite_rules', 2 );
 
@@ -69,15 +176,6 @@ function hma_get_login_rewrite_slug() {
 }
 
 /**
- * Return the rewrite slug for the inline login page
- *
- * @return string
- */
-function hma_get_login_inline_rewrite_slug() {
-	return apply_filters( 'hma_login_inline_rewrite_slug', 'login-inline' );
-}
-
-/**
  * Return the rewrite slug for the lost password page
  *
  * @return string
@@ -87,30 +185,12 @@ function hma_get_lost_password_rewrite_slug() {
 }
 
 /**
- * Return the rewrite slug for the inline lost password page
- *
- * @return string
- */
-function hma_get_lost_password_inline_rewrite_slug() {
-	return apply_filters( 'hma_lost_password_inline_rewrite_slug', 'login/lost-password-inline' );
-}
-
-/**
  * Return the rewrite slug for the register page
  *
  * @return string
  */
 function hma_get_register_rewrite_slug() {
 	return apply_filters( 'hma_register_rewrite_slug', 'register' );
-}
-
-/**
- * Return the rewrite slug for the inline register page
- *
- * @return string
- */
-function hma_get_register_inline_rewrite_slug() {
-	return apply_filters( 'hma_register_inline_rewrite_slug', 'register-inline' );
 }
 
 /**
@@ -150,30 +230,12 @@ function hma_get_lost_password_template() {
 }
 
 /**
- * Return the path to the lost password inline template
- *
- * @return string
- */
-function hma_get_lost_password_inline_template() {
-	return  apply_filters( 'hma_lost_password_inline_template', get_stylesheet_directory() . '/login.lost-password-popup.php' );
-}
-
-/**
  * Return the path to the register template
  *
  * @return string
  */
 function hma_get_register_template() {
 	return  apply_filters( 'hma_register_template', get_stylesheet_directory() . '/register.php' );
-}
-
-/**
- * Return the path to the register inline template
- *
- * @return string
- */
-function hma_get_register_inline_template() {
-	return  apply_filters( 'hma_register_inline_template', get_stylesheet_directory() . '/register-popup.php' );
 }
 
 /**

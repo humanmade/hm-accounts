@@ -1,77 +1,8 @@
 <?php
 
 /**
- * Check for form submissions
- *
- * @return null
- */
-function hma_check_for_pages() {
-
-	hma_check_for_submit( 'register' );
-	hma_check_for_submit( 'sso_register' );
-	hma_check_for_submit( 'login' );
-	hma_check_for_submit( 'lost_password' );
-	hma_check_for_submit( 'profile' );
-
-}
-add_action( 'init', 'hma_check_for_pages' );
-
-/**
- * Output the lost password form fields
- *
- * @access public
- * @return null
- */
-function hma_add_lost_password_inputs() {
-	hma_add_form_fields( 'lost_password' );
-	echo '<input type="hidden" name="referer" value="' . ( !empty( $_REQUEST['referer'] ) ? $_REQUEST['referer'] : wp_get_referer()) . '" />' . "\n";
-}
-add_action( 'hma_lost_password_form', 'hma_add_lost_password_inputs' );
-
-/**
- * Output the edit profile form fields
- *
- * @return null
- */
-function hma_add_profile_inputs() {
-	hma_add_form_fields( 'profile' );
-}
-add_action( 'hma_profile_form', 'hma_add_profile_inputs' );
-
-/**
- * Output the hidden form submissions tracking field and
- * optionally the wp_nonce
- *
- * @param string $page
- * @param bool $add_nonce. (default: true)
- * @return null
- */
-function hma_add_form_fields( $page, $add_nonce = true ) {
-
-	echo '<input type="hidden" name="hma_' . $page . '_submitted" value="' . $page . '" />' . "\n";
-
-	if ( $add_nonce )
-		wp_nonce_field( 'hma_' . $page . '_submitted' );
-
-}
-
-/**
- * Checks POST data for a given page name
- *
- * @param string $page name
- */
-function hma_check_for_submit( $page ) {
-
-	if ( empty( $_POST['hma_' . $page . '_submitted'] ) )
-		return;
-
-	do_action( 'hma_' . $page . '_submitted' );
-
-}
-
-/**
  * Process the password reset form submission
- *
+ * @todo make rewrite rule
  * @return null
  */
 function hma_check_for_password_reset() {
@@ -82,11 +13,11 @@ function hma_check_for_password_reset() {
 
 		if ( !is_wp_error( $status ) ) {
 			do_action( 'hma_lost_password_reset_success' );
-			wp_redirect( add_query_arg( 'message', '303', get_bloginfo('lost_password_url', 'display') ) );
+			wp_redirect( add_query_arg( 'message', '303', hma_get_lost_password_url() ) );
 
 		} else {
 			do_action( 'hma_lost_password_reset_error', $status );
-			wp_redirect( add_query_arg( 'message', $status->get_error_code(), get_bloginfo('lost_password_url', 'display') ) );
+			wp_redirect( add_query_arg( 'message', $status->get_error_code(), hma_get_lost_password_url() ) );
 
 		}
 
@@ -160,62 +91,10 @@ function hma_admin_add_avatar( $user ) { ?>
 
 		<table class="form-table">
 
-			<?php $avatar_options = hma_get_avatar_options();
-			$current_avatar_service = get_user_meta( $user->ID, 'user_avatar_option', true );
-
-		if ( $current_avatar_service ) :  ?>
-
-			<tr id="hma_user_avatar_select_row">
-
-				<th><label for="hma_user_avatar_file">Select which avatar is used</label></th>
-
-	    		<td>
-					<?php foreach ( $avatar_options as $avatar_option ) {
-
-			    		$avatar_option->set_user( $user );
-
-						if ( ! $avatar_option->get_avatar( 60 ) )
-							continue; ?>
-
-		    		<div class="hma_avatars">
-
-		    			<img src="<?php echo $avatar_option->get_avatar( 60 ); ?>" height="60" width="60" alt="Avatar <?php echo $avatar_option->service_name; ?>" class="avatar" />
-
-		    			<br/>
-
-						<?php // TODO for attribute? ?>
-
-		    			<label>
-
-							<input type="radio" name="hma_user_avatar_service" value="<?php echo $avatar_option->service_id; ?>"
-
-		    					<?php if ( ! empty( $current_avatar_service ) )
-			    					checked( $avatar_option->service_id, $current_avatar_service );
-			    				
-			    				else
-			    					checked( $avatar_option->service_id, 'gravatar' );  ?>
-			    			/>
-
-			    			<?php echo $avatar_option->service_name; ?>
-
-		    			</label>
-
-		    		</div>
-
-	    		<?php } ?>
-
-		    	</td>
-
-			</tr>
-
-		<?php else : ?>
-
 			<tr id="hma_user_avatar_current_row">
 				<th><label for="hma_user_avatar_file">Current Avatar</label></th>
 	    		<td><?php echo get_avatar( $user->ID, 60 ); ?></td>
 	    	</tr>
-
-		<?php endif; ?>
 
 			<tr id="hma_user_avatar_file_row">
 
@@ -246,9 +125,6 @@ function hma_admin_add_avatar_save( $user_id ) {
 	if ( ! current_user_can( 'edit_user', $user_id ) )
 		return false;
 
-	if ( isset( $_POST['hma_user_avatar_service'] )  )
-		update_user_meta( $user_id, 'user_avatar_option', sanitize_key( $_POST['hma_user_avatar_service'] ) );
-
 	if ( isset( $_FILES['hma_user_avatar_file'] ) && $_FILES['hma_user_avatar_file'] != '' ) {
 
 		$file = wp_handle_upload( $_FILES['hma_user_avatar_file'], array( 'test_form' => false ) );
@@ -260,7 +136,6 @@ function hma_admin_add_avatar_save( $user_id ) {
 
 		$path = str_replace( $upload_dir['basedir'] , '', $file['file'] );
 		update_user_meta( $user_id, 'user_avatar_path', $path );
-		update_user_meta( $user_id, 'user_avatar_option', 'uploaded' );
 
 	}
 
@@ -305,18 +180,6 @@ function hma_login_url_hook( $login_url, $redirect ) {
 
 }
 add_filter('login_url', 'hma_login_url_hook', 10, 2 );
-
-/**
- * Returns the logout url
- *
- * @param string $logout_url
- * @param string $redirect
- * @return string - new url
- */
-function hma_logout_url_hook( $logout_url, $redirect ) {
-	return hma_get_logout_url( $redirect );
-}
-add_filter('logout_url', 'hma_logout_url_hook', 10, 2 );
 
 /**
  * Override the author url with our own user urls.
