@@ -148,22 +148,23 @@ function hma_profile_submitted() {
 
 	} else {
 
-	if ( ! empty( $_POST['redirect_to'] ) )
-		$redirect = esc_url_raw( $_POST['redirect_to'] );
+		if ( ! empty( $_POST['redirect_to'] ) )
+			$redirect = esc_url_raw( $_POST['redirect_to'] );
 
-	elseif ( ! empty( $_POST['referer'] ) )
-		$redirect = esc_url_raw( $_POST['referer'] );
+		elseif ( ! empty( $_POST['referer'] ) )
+			$redirect = esc_url_raw( $_POST['referer'] );
 
-	elseif ( wp_get_referer() )
-		$redirect = wp_get_referer();
+		elseif ( wp_get_referer() )
+			$redirect = wp_get_referer();
 
-	else
-		$redirect = hma_get_edit_profile_url();
+		else
+			$redirect = hma_get_edit_profile_url();
 
-	do_action( 'hma_update_user_profile_completed', $redirect );
+		do_action( 'hma_update_user_profile_completed', $redirect );
 
 		wp_redirect( $redirect, 303 /* 303 means redirect for form submission - remove this comment */ );
-	exit;
+
+		exit;
 
 	}
 
