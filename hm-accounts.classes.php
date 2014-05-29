@@ -208,6 +208,12 @@ class HM_Accounts {
 
 		}
 
+		//Apply WordPress authenticate hooks - allows other plugins to fail the authentication
+		$default_authenticate = apply_filters( 'authenticate', null, $user->user_login, $args['password'] );
+
+		if ( is_wp_error( $default_authenticate ) )
+			return $default_authenticate;
+
 		if ( $args['set_cookie'] ) {
 			wp_set_auth_cookie( $user->ID, $args['remember'] );
 			wp_set_current_user( $user->ID );
