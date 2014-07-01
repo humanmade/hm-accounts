@@ -149,7 +149,7 @@ function hma_rewrite_rules() {
 
 			$success = hma_lost_password( sanitize_email( $_POST['user_email'] ) );
 
-			wp_redirect( wp_get_referer() );
+			wp_redirect( add_query_arg( array( 'message' => is_wp_error( $success ) ? 'reset-error' : 'reset-success' ), wp_get_referer() ) ) ;
 		}
 	) );
 
@@ -163,6 +163,7 @@ function hma_rewrite_rules() {
 			exit;
 		}
 	));
+
 }
 add_action( 'init', 'hma_rewrite_rules', 2 );
 
