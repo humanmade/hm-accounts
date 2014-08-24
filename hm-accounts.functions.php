@@ -318,7 +318,7 @@ function hma_get_avatar( $user = null, $width, $height, $crop = true, $try_norma
  */
 function hma_get_avatar_upload( $user, $width, $height, $crop ) {
 
-	if ( $path = hma_get_avatar_upload_path( $user ) )
+	if ( ( $path = hma_get_avatar_upload_path( $user ) ) && function_exists( 'wpthumb' ) )
 		return wpthumb( $path, $width, $height, $crop );
 
 	return '';
