@@ -219,7 +219,7 @@ function hma_update_user_info( $info ) {
 
 		$file = wp_handle_upload( $info['user_avatar'], array( 'test_form' => false ) );
 
-		$upload_dir = wp_upload_dir();
+		$upload_dir = hm_accounts_get_upload_dir();
 
 		$info['user_avatar_path'] = str_replace( $upload_dir['basedir'], '', $file['file'] );
 		$info['user_avatar_option'] = 'uploaded';
@@ -336,7 +336,7 @@ function hma_get_avatar_upload_path( $user ) {
 	if ( strpos( $path, ABSPATH ) === 0 )
 		return $path;
 
-	$upload_dir = wp_upload_dir();
+	$upload_dir = hm_accounts_get_upload_dir();
 
 	return $upload_dir['basedir'] . $path;
 }
@@ -385,6 +385,34 @@ function hma_override_reset_password($key, $login) {
 	wp_password_change_notification($user);
 
 	return true;
+}
+
+/**
+ * Get the upload dir where to store uploaded avatars etc
+ *
+ * As the path to the image is stored reletive to the upload
+ * dir, we must always use the upload dir from the "main site"
+ * as usermeta is shared accross all sites, but have different upload_dir.
+ * 
+ * @return array
+ */
+function hm_accounts_get_upload_dir() {
+
+	static $upload_dir;
+
+	if ( $upload_dir ) {
+		return $upload_dir;
+	}
+
+	if ( is_multisite() && ! is_main_site() ) {
+		switch_to_blog( get_current_site()->id );
+		$upload_dir = wp_upload_dir();
+		restore_current_blog();
+	} else {
+		$upload_dir = wp_upload_dir();
+	}
+
+	return $upload_dir;
 }
 
 /**
