@@ -217,7 +217,17 @@ function hma_update_user_info( $info ) {
 
 		require_once( ABSPATH . 'wp-admin/includes/admin.php' );
 
-		$file = wp_handle_upload( $info['user_avatar'], array( 'test_form' => false ) );
+		/**
+		 * If we are on the multisite, then upload the avatar from the main site
+		 * so then we can it cetrnally stored for use on all sites.
+		 */
+		if ( is_multisite() && ! is_main_site() ) {
+			switch_to_blog( get_current_site()->id );
+			$file = wp_handle_upload( $info['user_avatar'], array( 'test_form' => false ) );
+			restore_current_blog();
+		} else {
+			$file = wp_handle_upload( $info['user_avatar'], array( 'test_form' => false ) );
+		}
 
 		$upload_dir = hm_accounts_get_upload_dir();
 
