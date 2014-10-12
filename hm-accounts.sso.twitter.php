@@ -9,7 +9,6 @@ class HMA_SSO_Twitter extends HMA_SSO_Provider {
 		if ( !defined( 'HMA_SSO_TWITTER_API_KEY' ) || !defined( 'HMA_SSO_TWITTER_CONSUMER_SECRET' ) )
 			return new WP_Error( 'constants-not-defined' );
 			
-		require_once( 'twitterauth/config.php' );
 		require_once( 'twitterauth/twitteroauth/twitteroauth.php' );
 		
 		parent::__construct();
@@ -22,10 +21,11 @@ class HMA_SSO_Twitter extends HMA_SSO_Provider {
 		$this->supports_publishing = true;
 		$this->set_user( wp_get_current_user() );
 		
-		$this->usingSession = true;
+		$this->usingSession = false;
 		
-		if ( !isset( $_SESSION ) )
+		if ( $this->usingSession && ! isset( $_SESSION ) ) {
 			session_start();
+		}
 		
 		$this->avatar_option = new HMA_Twitter_Avatar_Option( $this );
 
@@ -73,14 +73,14 @@ class HMA_SSO_Twitter extends HMA_SSO_Provider {
 		$userdata = array( 
 			'user_login'	=> $this->user_info->screen_name,
 			'display_name'	=> $this->user_info->name,
-			'first_name'	=> reset( explode( ' ', $this->user_info->name ) ),
+			'first_name'	=> explode( ' ', $this->user_info->name )[0],
 			'display_name_preference' => 'first_name last_name',
 			'_twitter_uid'	=> $this->user_info->id,
 			'description'	=> $this->user_info->description
 		);
 
-		if ( count( explode( ' ', $this->user_info->name ) ) > 1 ) {
-			$userdata['last_name'] = end( explode( ' ', $this->user_info->name ) );
+		if ( ( $len = count( explode( ' ', $this->user_info->name ) ) ) > 1 ) {
+			$userdata['last_name'] = explode( ' ', $this->user_info->name )[$len-1];
 		}
 		
 		return $userdata;
