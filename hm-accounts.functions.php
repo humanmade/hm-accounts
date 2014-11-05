@@ -281,7 +281,7 @@ function hma_parse_user( $user = null ) {
 		if ( strpos( $user, "@" ) > 0 && $user = get_user_by( 'email', $user ) )
 			return $user;
 
-		return get_userdatabylogin( $user );
+		return get_user_by( 'login', $user );
 	}
 
 	if ( is_null( $user ) )
@@ -403,7 +403,7 @@ function hma_override_reset_password($key, $login) {
  * As the path to the image is stored reletive to the upload
  * dir, we must always use the upload dir from the "main site"
  * as usermeta is shared accross all sites, but have different upload_dir.
- * 
+ *
  * @return array
  */
 function hm_accounts_get_upload_dir() {
