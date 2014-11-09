@@ -517,6 +517,11 @@ class HMA_Facebook_Avatar_Option extends HMA_SSO_Avatar_Option {
 		$upload_dir_base = $upload_dir['basedir'];
 
 		if ( defined( "HMA_SSO_USE_STALE_AVATARS" ) && HMA_SSO_USE_STALE_AVATARS && ( $avatar = get_user_meta( $this->user->ID, '_facebook_avatar', true ) ) ) {
+
+			if ( strpos( $avatar, '/avatars/' ) === 0 ) {
+				$avatar = $upload_dir_base . $avatar;
+			}
+
 			$this->avatar_path = $avatar;
 			return wpthumb( $this->avatar_path, $size );
 		}
@@ -541,7 +546,7 @@ class HMA_Facebook_Avatar_Option extends HMA_SSO_Avatar_Option {
 			$this->avatar_path = get_user_meta( $this->user->ID, '_facebook_avatar', true );
 			$this->remove_local_avatar();
 			$this->avatar_path = null;
-			
+
 			$this->avatar_path = $this->save_avatar_locally( $image_url, 'jpg' );
 			
 			update_user_meta( $this->user->ID, '_facebook_avatar', str_replace( $upload_dir_base, '', $this->avatar_path ) );
