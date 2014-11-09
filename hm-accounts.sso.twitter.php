@@ -434,6 +434,11 @@ class HMA_Twitter_Avatar_Option extends HMA_SSO_Avatar_Option {
 		$upload_dir = wp_upload_dir();
 		$upload_dir_base = $upload_dir['basedir'];
 		
+		if ( defined( "HMA_SSO_USE_STALE_AVATARS" ) && HMA_SSO_USE_STALE_AVATARS && ( $avatar = get_user_meta( $this->user->ID, '_twitter_avatar', true ) ) ) {
+			$this->avatar_path = $avatar;
+			return wpthumb( $this->avatar_path, $size );
+		}
+
 		if ( ( $avatar = get_user_meta( $this->user->ID, '_twitter_avatar', true ) ) && file_exists( $avatar ) ) {
 			$this->avatar_path = $avatar;
 			
