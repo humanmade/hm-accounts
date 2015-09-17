@@ -75,7 +75,7 @@ function hma_rewrite_rules() {
 
 				do_action( 'hma_register_submitted_error', $hm_return );
 				hm_error_message( $hm_return->get_error_message() ? $hm_return->get_error_message() : 'Something went wrong, error code: ' . $hm_return->get_error_code(), 'register' );
-				wp_redirect( wp_get_referer() );
+				wp_safe_redirect( wp_get_referer() );
 				exit;
 
 			} else {
@@ -91,7 +91,7 @@ function hma_rewrite_rules() {
 				else
 					$redirect = hma_get_edit_profile_url();
 
-				wp_redirect( $redirect );
+				wp_safe_redirect( $redirect );
 				exit;
 			}
 		}
@@ -149,7 +149,7 @@ function hma_rewrite_rules() {
 
 			$success = hma_lost_password( sanitize_email( $_POST['user_email'] ) );
 
-			wp_redirect( add_query_arg( array( 'message' => is_wp_error( $success ) ? 'reset-error' : 'reset-success' ), wp_get_referer() ) ) ;
+			wp_safe_redirect( add_query_arg( array( 'message' => is_wp_error( $success ) ? 'reset-error' : 'reset-success' ), wp_get_referer() ) ) ;
 		}
 	) );
 

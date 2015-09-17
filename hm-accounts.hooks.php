@@ -13,11 +13,11 @@ function hma_check_for_password_reset() {
 
 		if ( !is_wp_error( $status ) ) {
 			do_action( 'hma_lost_password_reset_success' );
-			wp_redirect( add_query_arg( 'message', '303', hma_get_lost_password_url() ) );
+			wp_safe_redirect( add_query_arg( 'message', '303', hma_get_lost_password_url() ) );
 
 		} else {
 			do_action( 'hma_lost_password_reset_error', $status );
-			wp_redirect( add_query_arg( 'message', $status->get_error_code(), hma_get_lost_password_url() ) );
+			wp_safe_redirect( add_query_arg( 'message', $status->get_error_code(), hma_get_lost_password_url() ) );
 
 		}
 

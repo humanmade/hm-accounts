@@ -164,7 +164,7 @@ function hma_profile_submitted() {
 
 		do_action( 'hma_update_user_profile_completed', $redirect );
 
-		wp_redirect( $redirect, 303 /* 303 means redirect for form submission - remove this comment */ );
+		wp_safe_redirect( $redirect, 303 /* 303 means redirect for form submission - remove this comment */ );
 
 		exit;
 
@@ -196,7 +196,7 @@ function hma_logout() {
 
 		}
 
-		wp_redirect( $redirect );
+		wp_safe_redirect( $redirect );
 		exit;
 
 	endif;
