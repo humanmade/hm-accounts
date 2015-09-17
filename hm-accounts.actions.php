@@ -17,7 +17,7 @@ function hma_do_login_redirect( $return, $do_redirect_on_error = false ) {
 			$redirect = add_query_arg( 'redirect_to', esc_url_raw( $_REQUEST['redirect_to'] ), $redirect );
 
 		if ( $do_redirect_on_error ) {
-			wp_redirect( add_query_arg( 'errored', time(), $redirect ), 303 );
+			wp_safe_redirect( add_query_arg( 'errored', time(), $redirect ), 303 );
 			exit;
 		}
 
@@ -56,6 +56,9 @@ function hm_parse_redirect( $redirect ) {
 
 	if ( is_user_logged_in() )
 		$redirect = str_replace( '_user_login_', wp_get_current_user()->user_login, $redirect );
+
+	$redirect = wp_sanitize_redirect( $redirect );
+	$redirect = wp_validate_redirect( $redirect, home_url() );
 
 	return apply_filters( 'hm_parse_login_redirect',  $redirect );
 
