@@ -19,21 +19,21 @@ function hma_rewrite_rules() {
 		hm_add_rewrite_rule( '^' . hma_get_register_rewrite_slug() . '/?$', 'is_register=1', $register, array( 'post_query_properties' => array( 'is_home' => false, 'is_404' => false, 'is_register' => true ), 'permission' => 'logged_out_only' ) );
 
 	if ( file_exists( $edit_profile = hma_get_edit_profile_template() ) )
-		hm_add_rewrite_rule( 
-			'^' . hma_get_edit_profile_rewrite_slug() . '/?$', 
-			'author_name=$matches[1]&is_profile=1', 
-			$edit_profile, 
-			array( 
-				'post_query_properties' => array( 'is_home' => false, 'is_edit_profile' => true ), 
+		hm_add_rewrite_rule(
+			'^' . hma_get_edit_profile_rewrite_slug() . '/?$',
+			'author_name=$matches[1]&is_profile=1',
+			$edit_profile,
+			array(
+				'post_query_properties' => array( 'is_home' => false, 'is_edit_profile' => true ),
 				'permission' => 'displayed_user_only',
 				'request_callback' => function( $request ) {
-					
+
 					if ( is_user_logged_in() )
 						$request->query_vars['author'] = get_current_user_id();
 				}
 			 )
 		);
-		
+
 	if ( file_exists( $profile = hma_get_user_profile_template() ) )
 		hm_add_rewrite_rule( '^' . hma_get_user_profile_rewrite_slug() . '/([^\/]*)(/page/([\d]*))?/?$', 'author_name=$matches[1]&paged=$matches[3]', $profile, array( 'post_query_properties' => array( 'is_home' => false, 'is_user_profile' => true ) ) );
 
@@ -47,7 +47,7 @@ function hma_rewrite_rules() {
 			$type = ! empty( $_GET['type'] ) ? sanitize_key( $_GET['type'] )  : 'manual';
 
 			$hm_accounts = HM_Accounts::get_instance( $type );
-			 
+
 			$details = array(
 
 				'user_login' 	=> ! empty( $_POST['user_login'] ) ? sanitize_text_field( $_POST['user_login'] ) : '',
@@ -111,28 +111,28 @@ function hma_rewrite_rules() {
 			// normal login form authentication
 			if ( isset( $_POST['user_pass'] ) ) {
 
-				$details = array( 
-					'password' => $_POST['user_pass'], 
+				$details = array(
+					'password' => $_POST['user_pass'],
 					'username' => sanitize_text_field( $_POST['user_login'] ),
 					'remember' => ! empty( $_POST['remember'] ) ? true : false
 				);
 
 			} else {
-				$details = array();	
+				$details = array();
 			}
-			
+
 			$details = apply_filters( 'hma_login_args', $details );
 
 			$status = $hm_accounts->login( $details );
 
 			if ( is_wp_error( $status ) )
-				hm_error_message( 
-					apply_filters( 
-						'hma_login_error_message', 
-						$status->get_error_message() ? $status->get_error_message() : 'Something went wrong, error code: ' . $status->get_error_code(), 
+				hm_error_message(
+					apply_filters(
+						'hma_login_error_message',
+						$status->get_error_message() ? $status->get_error_message() : 'Something went wrong, error code: ' . $status->get_error_code(),
 						$status
-					), 
-					'login' 
+					),
+					'login'
 				);
 
 
@@ -148,8 +148,8 @@ function hma_rewrite_rules() {
 		'request_callback' => function() {
 
 			$success = hma_lost_password( sanitize_email( $_POST['user_email'] ) );
-
-			wp_safe_redirect( add_query_arg( array( 'message' => is_wp_error( $success ) ? 'reset-error' : 'reset-success' ), wp_get_referer() ) ) ;
+			$redirect_to = wp_get_referer() ? wp_get_referer() : hma_get_lost_password_url();
+			wp_safe_redirect( add_query_arg( array( 'message' => is_wp_error( $success ) ? 'reset-error' : 'reset-success' ), $redirect_ti ) ) ;
 		}
 	) );
 
@@ -157,7 +157,7 @@ function hma_rewrite_rules() {
 	 * Controller to catch the edit profile submit
 	 */
 	hm_add_rewrite_rule( array(
-		'regex' => '^' . hma_get_edit_profile_rewrite_slug() . '/submit/?$', 
+		'regex' => '^' . hma_get_edit_profile_rewrite_slug() . '/submit/?$',
 		'request_callback' => function() {
 			hma_profile_submitted();
 			exit;
