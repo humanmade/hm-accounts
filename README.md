@@ -1,4 +1,4 @@
-**This project is unmaintainted.**
+**This project is unmaintained.**
 
 HM-Accounts
 ===========
