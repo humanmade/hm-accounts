@@ -120,9 +120,9 @@ function hma_replace_avatar( $avatar, $id_or_email, $size, $default, $alt = null
 		return $avatar;
 
 	$src = hma_get_avatar( $user, $size, $size, true, false );
-  if (filter_var($src, FILTER_VALIDATE_URL) === FALSE) {
+  	if (filter_var($src, FILTER_VALIDATE_URL) === FALSE) {
 		return $avatar;
-  }
+  	}
 
 	return '<img alt="' . $alt . '" src="' . $src . '" class="avatar avatar-' . $size . ' photo" height="' . $size . '" width="' . $size . '" />';
 
