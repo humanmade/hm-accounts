@@ -120,9 +120,9 @@ function hma_replace_avatar( $avatar, $id_or_email, $size, $default, $alt = null
 		return $avatar;
 
 	$src = hma_get_avatar( $user, $size, $size, true, false );
-
-	if ( !$src )
+  	if (filter_var($src, FILTER_VALIDATE_URL) === FALSE) {
 		return $avatar;
+  	}
 
 	return '<img alt="' . $alt . '" src="' . $src . '" class="avatar avatar-' . $size . ' photo" height="' . $size . '" width="' . $size . '" />';
 
@@ -191,7 +191,7 @@ function hma_admin_add_avatar( $user ) { ?>
 
 		    					<?php if ( ! empty( $current_avatar_service ) )
 			    					checked( $avatar_option->service_id, $current_avatar_service );
-			    				
+
 			    				else
 			    					checked( $avatar_option->service_id, 'gravatar' );  ?>
 			    			/>
